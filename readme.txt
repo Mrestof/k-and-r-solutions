@@ -2,7 +2,7 @@ Solutions to K&R2 tasks
 
 
 This is a collection of my solutions to K&R2 tasks, scripts for running them
-and some other related stuff.
+and some other related stuff. Solutions are named like this: "ex210.c" for Exercise 2-10 in book. Files named "n-smth.c" are code samples related to chapters.
 
 
 To run a solution you have a few options:
