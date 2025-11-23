@@ -31,7 +31,7 @@ printf '%s\n' "$filename"
 printf '###############\n'
 printf '=== compile ===\n'
 set -e
-gcc -c src/lib/myutils.c -o .bin/lib/myutils.o
+gcc -c -g src/lib/myutils.c -o .bin/lib/myutils.o
 ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
 gcc -O0 -g $gcc_warnings $filename -o $bin_name -L.bin/lib -lmyutils -lm -lbsd
 set +e
