@@ -1,7 +1,8 @@
 Solutions to K&R2 tasks
 
 
-This is a collection of my solutions to K&R2 tasks, scripts for running them and some other related stuff.
+This is a collection of my solutions to K&R2 tasks, scripts for running them
+and some other related stuff.
 
 
 To run a solution you have a few options:
