@@ -5,7 +5,10 @@
 
 int my_rand(void);
 void my_srand(unsigned long seed);
-void swap(int *a, int *b);
+
 bool is_prime(long a);
+
+void swap(int *a, int *b);
+void reverse(char s[]);
 
 #endif /* MYUTILS_H */
