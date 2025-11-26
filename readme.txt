@@ -5,6 +5,11 @@ This is a collection of my solutions to K&R2 tasks, scripts for running them
 and some other related stuff. Solutions are named like this: "ex210.c" for Exercise 2-10 in book. Files named "n-smth.c" are code samples related to chapters.
 
 
+Some tests are AI generated because it's a fairly simple and not very important
+task to do, but I try to review them all, so don't worry about them being
+faulty, though some might make little sense or be repetitive.
+
+
 To run a solution you have a few options:
 
   1. Use `run.sh`
