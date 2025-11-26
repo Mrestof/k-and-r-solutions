@@ -1,7 +1,5 @@
-#include <limits.h>
 #include <stdio.h>
 
-#define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
@@ -38,9 +36,11 @@ void test_strindex(const char s[], const char t[], const int sol) {
 }
 
 int main() {
+  // manual
   test_strindex("some uno dos uno wow", "uno", 13); // simple test
   test_strindex("some uno dos uno una", "uno", 13); // complete pattern test
-                                                    //
+
+  // ai
   test_strindex("hello kitty", "kitty", 6);         // match late
   test_strindex("abcabcabc", "abc", 6);             // last abc
   test_strindex("abcabcabc", "cab", 5);             // overlap
@@ -51,5 +51,6 @@ int main() {
   test_strindex("nyanyaa", "", -1);                 // empty needle
   test_strindex("case sensitivity", "Case", -1);    // verify lowercase only
   test_strindex("arch pride", "arch", 0);           // prefix
+
   return 0;
 }
