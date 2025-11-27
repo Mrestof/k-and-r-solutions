@@ -48,8 +48,8 @@ void ungetch(char c) {
     buf[bufp++] = c;
 }
 
-/* getop: get next character or numeric operand */
-int getop(char s[]) {
+/* getop: get next character, numeric operand, or a command */
+char getop(char s[]) {
   bool isnum;
   char c, cprev;
   int i;
@@ -84,6 +84,49 @@ int getop(char s[]) {
   if (c != EOF)
     ungetch(c);
   return NUMBER;
+}
+
+// skip \n cmd for meta commands
+void meta_cmd_skip_nl(void) {
+  char c;
+  if ((c = getch()) != '\n')
+    ungetch(c);
+}
+
+void stack_print(void) {
+  int i;
+
+  putchar('\t');
+  for (i = 0; i < sp; i++)
+    printf("%g%s", val[i], i < sp-1 ? ", " : "");
+  putchar('\n');
+}
+
+void stack_duplicate(void) {
+  double op;
+  if (sp == 0) {
+    puts("error: stack empty");
+    return;
+  }
+  op = pop();
+  push(op);
+  push(op);
+}
+
+void stack_swap(void) {
+  double op1, op2;
+  if (sp < 2) {
+    puts("error: not enough operands on stack");
+    return;
+  }
+  op1 = pop();
+  op2 = pop();
+  push(op1);
+  push(op2);
+}
+
+void stack_clear(void) {
+  sp = 0;
 }
 
 /* reverse Polish calculator */
@@ -127,6 +170,22 @@ int main() {
         push(pop() / op2);
       else
         printf("error: zero divisor\n");
+      break;
+    case 'p': // print the stack
+      stack_print();
+      meta_cmd_skip_nl();
+      break;
+    case 'd':
+      stack_duplicate();
+      meta_cmd_skip_nl();
+      break;
+    case 's':
+      stack_swap();
+      meta_cmd_skip_nl();
+      break;
+    case 'c':
+      stack_clear();
+      meta_cmd_skip_nl();
       break;
     case '\n':
       printf("\t%.8g\n", pop());
