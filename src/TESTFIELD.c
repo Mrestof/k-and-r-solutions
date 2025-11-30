@@ -5,6 +5,17 @@
 
 #include "lib/myutils.h"
 
+void test_find_str() {
+  int i;
+  char *arr[4] = {"reimu", "miku", "rin", "teto"};
+  i = find_str("miku", arr, 4);
+  printf("miku: %d\n", i);
+  i = find_str("reimu", arr, 4);
+  printf("reimu: %d\n", i);
+  i = find_str("rin", arr, 4);
+  printf("rin: %d\n", i);
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat"
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
@@ -82,5 +93,6 @@ void test_swap() {
 }
 
 int main() {
+  test_find_str();
   return 0;
 }

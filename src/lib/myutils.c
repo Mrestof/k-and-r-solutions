@@ -1,4 +1,5 @@
 #include <math.h>
+#include <string.h>
 #include "myutils.h"
 
 unsigned long next = 1;
@@ -38,4 +39,14 @@ void reverse(char s[]) {
     s[i] = s[j];
     s[j] = c;
   }
+}
+
+int find_str(const char s[], char * const in[], const int in_len) {
+  int i;
+
+  for (i = 0; i < in_len; i++)
+    if (strcmp(s, in[i]) == 0)
+      return i;
+
+  return -1;
 }
