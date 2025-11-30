@@ -3,13 +3,95 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <math.h>
+
+#include "lib/myutils.h"
 
 #define MATH_SEP '$'
 
-#define MAXOP 100 /* max size of operand or operator */
 #define NUMBER '0' /* signal that a number was found */
+#define MATH '1' /* signal that a math function name was found */
+
+#define MAXOP 100 /* max size of operand or operator */
 #define MAXVAL 100 /* maximum depth of val stack */
 #define BUFSIZE 100
+
+#define MATH_FUNC_AMNT 22
+
+char *MATH_FUNC_NAME[MATH_FUNC_AMNT] = {
+  "sin",
+  "cos",
+  "tan",
+  "asin",
+  "acos",
+  "atan",
+  "atan2",
+  "sinh",
+  "cosh",
+  "tanh",
+  "exp",
+  "log",
+  "log10",
+  "pow",
+  "sqrt",
+  "ceil",
+  "floor",
+  "fabs",
+  "ldexp", // not directly indexable
+  "frexp", // not implemented
+  "modf", // not implemented
+  "fmod",
+};
+
+double (*MATH_FUNC_U[MATH_FUNC_AMNT])(double) = {
+  sin,
+  cos,
+  tan,
+  asin,
+  acos,
+  atan,
+  NULL,
+  sinh,
+  cosh,
+  tanh,
+  exp,
+  log,
+  log10,
+  NULL,
+  sqrt,
+  ceil,
+  floor,
+  fabs,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+};
+
+double (*MATH_FUNC_B[MATH_FUNC_AMNT])(double, double) = {
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  atan2,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  pow,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  fmod,
+};
 
 int sp = 0; /* next free stack position */
 double val[MAXVAL]; /* value stack */
@@ -48,6 +130,41 @@ void ungetch(char c) {
     buf[bufp++] = c;
 }
 
+// if input before next whitespace contains a math function, return true and
+// write math function name to the s buffer, if it does not contain a math
+// function, return false and write all the characters read so far
+bool is_math(char s[]) {
+  int i;
+  for (i = 1; !isspace(s[i] = getch()); i++);
+  ungetch(s[i]);
+  s[i] = '\0';
+  return find_str(s, MATH_FUNC_NAME, MATH_FUNC_AMNT) >= 0;
+}
+
+// check if math function operates on one or two arguments
+bool is_math_binary(const char math_name[]) {
+  return MATH_FUNC_U[
+    find_str(math_name, MATH_FUNC_NAME, MATH_FUNC_AMNT)
+  ] == NULL;  // looks delicious
+}
+
+double do_math(bool is_binary, const char math_name[], double op1, double op2) {
+  int math_id;
+  double result;
+
+  math_id = find_str(math_name, MATH_FUNC_NAME, MATH_FUNC_AMNT);
+
+  if (is_binary)
+    if (math_id == 18)
+      result = ldexp(op1, (int)op2);
+    else
+      result = MATH_FUNC_B[math_id](op1, op2);
+  else
+    result = MATH_FUNC_U[math_id](op1);
+
+  return result;
+}
+
 /* getop: get next character, numeric operand, or a command */
 char getop(char s[]) {
   bool isnum;
@@ -69,8 +186,16 @@ char getop(char s[]) {
       if (!isnum)
         return c;
     }
-    else
+    else if (is_math(s)) {
+      return MATH;
+    }
+    else {
+      reverse(s);
+      for (i = 0; s[i+1] != '\0'; i++) {
+        ungetch(s[i]); // undo reads in is_math
+      }
       return c; /* not a number */
+    }
   }
 
   i = 0;
@@ -131,9 +256,9 @@ void stack_clear(void) {
 
 /* reverse Polish calculator */
 int main() {
-  char c, type;
-  double op2;
-  char s[MAXOP];
+  char c = 0, type = 0;
+  double op2 = 0;
+  char s[MAXOP] = {0};
 
   if (!isatty(STDIN_FILENO))
     // find and execute first block like an inline math in latex
@@ -143,6 +268,13 @@ int main() {
     switch (type) {
     case NUMBER:
       push(atof(s));
+      break;
+    case MATH:
+      if (is_math_binary(s)) {
+        op2 = pop();
+        push(do_math(true, s, pop(), op2));
+      } else
+        push(do_math(false, s, pop(), 0));
       break;
     case '+':
       push(pop() + pop());

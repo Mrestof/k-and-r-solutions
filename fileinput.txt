@@ -56,6 +56,10 @@ $ 5 1 2 + 4 * + 3 -
   4 d *
   2 4 s /
   1 2 3 4 c 1 2 p
+  2 3 pow
+  16 sqrt
+  5 10 ldexp 1 10 ldexp +
+  42 2 pow sqrt
 $
 results should be following:
 14
@@ -67,3 +71,7 @@ results should be following:
 16
 2
 1, 2
+8
+4
+6144
+42
