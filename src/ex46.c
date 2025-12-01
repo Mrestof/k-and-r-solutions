@@ -18,6 +18,10 @@
 
 #define MATH_FUNC_AMNT 22
 
+#define LETTERS_AMNT 'z' - 'a' + 1
+
+// math name mappings {{{
+
 char *MATH_FUNC_NAME[MATH_FUNC_AMNT] = {
   "sin",
   "cos",
@@ -93,11 +97,15 @@ double (*MATH_FUNC_B[MATH_FUNC_AMNT])(double, double) = {
   fmod,
 };
 
+/// }}}
+
 int sp = 0; /* next free stack position */
 double val[MAXVAL]; /* value stack */
 
 int bufp = 0; /* next free position in buf */
 char buf[BUFSIZE]; /* buffer for ungetch */
+
+double vars[LETTERS_AMNT+1] = {0}; // +1 for last printed variable
 
 /* push: push f onto value stack */
 void push(double f) {
@@ -163,6 +171,30 @@ double do_math(bool is_binary, const char math_name[], double op1, double op2) {
     result = MATH_FUNC_U[math_id](op1);
 
   return result;
+}
+
+void set_variable() {
+  int c;
+  c = getch();
+  if (c == EOF) {
+    puts("error: variable is EOF");
+    return;
+  }
+  vars[c - 'a'] = pop();
+}
+
+void get_variable() {
+  int c;
+  c = getch();
+  if (c == EOF) {
+    puts("error: variable is EOF");
+    return;
+  }
+  if (c == '?') {
+    push(vars['z'+1-'a']);
+    return;
+  }
+  push(vars[c - 'a']);
 }
 
 /* getop: get next character, numeric operand, or a command */
@@ -319,8 +351,15 @@ int main() {
       stack_clear();
       meta_cmd_skip_nl();
       break;
+    case '=':
+      set_variable();
+      break;
+    case '?':
+      get_variable();
+      break;
     case '\n':
-      printf("\t%.8g\n", pop());
+      vars['z'+1-'a'] = pop();
+      printf("\t%.8g\n", vars['z'+1-'a']);
       break;
     default:
       printf("error: unknown command %s\n", s);

@@ -48,11 +48,13 @@ aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaa
 
 a math expressions!! in reverse Polish notation
 $ 5 1 2 + 4 * + 3 -
+  16 sqrt =x 11 =y 0
   -5 5 +
   5 -4 +
   15 4 % 3 2 - +
   1 2 3 4 p
   + + +
+  ?? 1 +
   4 d *
   2 4 s /
   1 2 3 4 c 1 2 p
@@ -60,14 +62,17 @@ $ 5 1 2 + 4 * + 3 -
   16 sqrt
   5 10 ldexp 1 10 ldexp +
   42 2 pow sqrt
+  ?x ?y *
 $
 results should be following:
 14
+0
 0
 1
 4
 1, 2, 3, 4
 10
+11
 16
 2
 1, 2
@@ -75,3 +80,4 @@ results should be following:
 4
 6144
 42
+44
