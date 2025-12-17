@@ -101,7 +101,7 @@ double (*MATH_FUNC_B[MATH_FUNC_AMNT])(double, double) = {
 int sp = 0; /* next free stack position */
 double val[MAXVAL]; /* value stack */
 
-char buf = '\0'; /* buffer for ungetch */
+int buf = '\0'; /* buffer for ungetch */
 
 double vars[LETTERS_AMNT+1] = {0}; // +1 for last printed variable
 
@@ -124,8 +124,8 @@ double pop(void) {
 }
 
 /* get a (possibly pushed-back) character */
-char getch(void) {
-  char c;
+int getch(void) {
+  int c;
   if (buf != '\0') {
     c = buf;
     buf = '\0';
@@ -136,7 +136,7 @@ char getch(void) {
 }
 
 /* push character back on input, return 0 on success, or non-zero on fail */
-int ungetch(char c) {
+int ungetch(int c) {
   if (buf != '\0') {
     printf("ungetch: too many characters\n");
     return 1;
