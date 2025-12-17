@@ -14,6 +14,7 @@
 
 #define MAXOP 100 /* max size of operand or operator */
 #define MAXVAL 100 /* maximum depth of val stack */
+#define MAXLINE 1000 /* maximum length of a line to read */
 
 #define MATH_FUNC_AMNT 22
 
@@ -101,9 +102,25 @@ double (*MATH_FUNC_B[MATH_FUNC_AMNT])(double, double) = {
 int sp = 0; /* next free stack position */
 double val[MAXVAL]; /* value stack */
 
-int buf = '\0'; /* buffer for ungetch */
+char buf[MAXLINE] = {0};
+int bufp = 0;
 
 double vars[LETTERS_AMNT+1] = {0}; // +1 for last printed variable
+
+int readline(char s[], int lim) {
+  int c, i;
+
+  for (i=0; (c=getchar())!=EOF && c!='\n'; ++i)
+    if (i < lim-1)
+      s[i] = c;
+  if (c == '\n') {
+    s[i] = c;
+    ++i;
+  }
+  s[i] = '\0';
+
+  return i;
+}
 
 /* push: push f onto value stack */
 void push(double f) {
@@ -125,24 +142,26 @@ double pop(void) {
 
 /* get a (possibly pushed-back) character */
 int getch(void) {
-  int c;
-  if (buf != '\0') {
-    c = buf;
-    buf = '\0';
+  if (bufp == -1) {
+    bufp++;
+    return '\n';
   }
-  else
-    c = getchar();
-  return c;
+  if (buf[bufp] == '\0') {
+    if (readline(buf, MAXLINE) == 0)
+      return EOF;
+    else
+      bufp = 0;
+  }
+  return buf[bufp++];
 }
 
 /* push character back on input, return 0 on success, or non-zero on fail */
-int ungetch(int c) {
-  if (buf != '\0') {
-    printf("ungetch: too many characters\n");
-    return 1;
+void ungetch(void) {
+  if (bufp == -1) {
+    printf("ungetch: too many pushbacks\n");
+    return;
   }
-  buf = c;
-  return 0;
+  bufp--;
 }
 
 bool looks_like_math(char s[]) {
@@ -217,7 +236,7 @@ char getop(char s[]) {
     if (c == '-') {
       cprev = c;
       isnum = isdigit(c = getch());
-      ungetch(c);
+      ungetch();
       c = cprev;
       if (!isnum)
         return c;
@@ -228,7 +247,7 @@ char getop(char s[]) {
       if (looks_like_math(s)) {
         // get the rest of the math func name
         for (i = 2; !isspace(s[i] = getch()); i++);
-        ungetch(s[i]);
+        ungetch();
         s[i] = '\0';
         if (find_str(s, MATH_FUNC_NAME, MATH_FUNC_AMNT) >= 0)
           return MATH;
@@ -236,7 +255,7 @@ char getop(char s[]) {
           printf("we are fucked");
       }
       else {
-        ungetch(s[1]);
+        ungetch();
         s[1] = '\0';
         return c; /* not a number */
       }
@@ -252,7 +271,7 @@ char getop(char s[]) {
       ;
   s[i] = '\0';
   if (c != EOF)
-    ungetch(c);
+    ungetch();
   return NUMBER;
 }
 
@@ -260,7 +279,7 @@ char getop(char s[]) {
 void meta_cmd_skip_nl(void) {
   char c;
   if ((c = getch()) != '\n')
-    ungetch(c);
+    ungetch();
 }
 
 void stack_print(void) {
