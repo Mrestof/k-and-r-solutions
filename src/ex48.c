@@ -145,15 +145,12 @@ int ungetch(char c) {
   return 0;
 }
 
-// if input before next whitespace contains a math function, return true and
-// write math function name to the s buffer, if it does not contain a math
-// function, return false and write all the characters read so far
-bool is_math(char s[]) {
+bool looks_like_math(char s[]) {
   int i;
-  for (i = 1; !isspace(s[i] = getch()); i++);
-  ungetch(s[i]);
-  s[i] = '\0';
-  return find_str(s, MATH_FUNC_NAME, MATH_FUNC_AMNT) >= 0;
+  for (i = 0; i < MATH_FUNC_AMNT; i++)
+    if (MATH_FUNC_NAME[i][0] == s[0] && MATH_FUNC_NAME[i][1] == s[1])
+      return true;
+  return false;
 }
 
 // check if math function operates on one or two arguments
@@ -225,15 +222,24 @@ char getop(char s[]) {
       if (!isnum)
         return c;
     }
-    else if (is_math(s)) {
-      return MATH;
-    }
     else {
-      reverse(s);
-      for (i = 0; s[i+1] != '\0'; i++) {
-        ungetch(s[i]); // undo reads in is_math
+      s[1] = getch();
+      s[2] = '\0';
+      if (looks_like_math(s)) {
+        // get the rest of the math func name
+        for (i = 2; !isspace(s[i] = getch()); i++);
+        ungetch(s[i]);
+        s[i] = '\0';
+        if (find_str(s, MATH_FUNC_NAME, MATH_FUNC_AMNT) >= 0)
+          return MATH;
+        else
+          printf("we are fucked");
       }
-      return c; /* not a number */
+      else {
+        ungetch(s[1]);
+        s[1] = '\0';
+        return c; /* not a number */
+      }
     }
   }
 
