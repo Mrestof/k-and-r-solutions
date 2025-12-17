@@ -14,7 +14,6 @@
 
 #define MAXOP 100 /* max size of operand or operator */
 #define MAXVAL 100 /* maximum depth of val stack */
-#define BUFSIZE 100
 
 #define MATH_FUNC_AMNT 22
 
@@ -102,8 +101,7 @@ double (*MATH_FUNC_B[MATH_FUNC_AMNT])(double, double) = {
 int sp = 0; /* next free stack position */
 double val[MAXVAL]; /* value stack */
 
-int bufp = 0; /* next free position in buf */
-char buf[BUFSIZE]; /* buffer for ungetch */
+char buf = '\0'; /* buffer for ungetch */
 
 double vars[LETTERS_AMNT+1] = {0}; // +1 for last printed variable
 
@@ -127,16 +125,23 @@ double pop(void) {
 
 /* get a (possibly pushed-back) character */
 char getch(void) {
-  return (bufp > 0) ? buf[--bufp] : getchar();
+  char c;
+  if (buf != '\0') {
+    c = buf;
+    buf = '\0';
+  }
+  else
+    c = getchar();
+  return c;
 }
 
 /* push character back on input, return 0 on success, or non-zero on fail */
 int ungetch(char c) {
-  if (bufp >= BUFSIZE) {
+  if (buf != '\0') {
     printf("ungetch: too many characters\n");
     return 1;
   }
-  buf[bufp++] = c;
+  buf = c;
   return 0;
 }
 
