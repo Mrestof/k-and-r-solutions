@@ -130,12 +130,22 @@ char getch(void) {
   return (bufp > 0) ? buf[--bufp] : getchar();
 }
 
-/* push character back on input */
-void ungetch(char c) {
-  if (bufp >= BUFSIZE)
+/* push character back on input, return 0 on success, or non-zero on fail */
+int ungetch(char c) {
+  if (bufp >= BUFSIZE) {
     printf("ungetch: too many characters\n");
-  else
-    buf[bufp++] = c;
+    return 1;
+  }
+  buf[bufp++] = c;
+  return 0;
+}
+
+void ungets(char s[]) {
+  int i;
+  for (i = 0; s[i] != '\0'; i++);
+  for (i = i-1; i >= 0; i--)
+    if (ungetch(s[i]) != 0)
+      return;
 }
 
 // if input before next whitespace contains a math function, return true and
@@ -286,6 +296,22 @@ void stack_clear(void) {
   sp = 0;
 }
 
+// only reasonable way I found to test the new `ungets` is to just directly
+// write a test for it, because I don't see any place in code where it would be
+// suitable to use it (only one place, inside `getop`, but it's usually invokes
+// `ungetch` only once, so it's not a great place to test `ungets`)
+void test_ungets(void) {
+  int i;
+  int AMNT = 42;
+  char s[AMNT];
+
+  for (i = 0; i < AMNT; i++)
+    s[i] = getch();
+  s[i] = '\0';
+
+  ungets(s);
+}
+
 /* reverse Polish calculator */
 int main() {
   char c = 0, type = 0;
@@ -295,6 +321,8 @@ int main() {
   if (!isatty(STDIN_FILENO))
     // find and execute first block like an inline math in latex
     while ((c = getchar()) != MATH_SEP && c != EOF);
+
+  test_ungets();
 
   while ((type = getop(s)) != EOF && type != MATH_SEP) {
     switch (type) {
