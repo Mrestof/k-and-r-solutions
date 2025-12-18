@@ -7,8 +7,7 @@ FOUT=./fileoutput.txt
 # done via Make more easier
 filename=$1
 if [[ -z "$filename" ]]; then
-  #last_edited=$(find src -type f -printf '%T@ %p\n' | sort | tail -1 | cut -d' ' -f2)
-  last_edited=$(ls src/*.c -t | head -1)
+  last_edited=$(find src -type f -name '*.c' -not -name 'myutils.*' -printf '%T@ %p\n' | sort | tail -1 | cut -d' ' -f2)
   if [[ ! $last_edited =~ .+\.c ]]; then
     printf 'usage: %s FILE\n' "$0"
     printf '(or the last edited file must be *.c)\n'
@@ -25,15 +24,29 @@ bin_name="./.bin/${filename#*/}"
 
 gcc_warnings=\
 '-Wall -Wextra -Wpedantic -Wreturn-type -Wdouble-promotion -Wfloat-conversion'
+gcc_debug_options=\
+'-g -ftrivial-auto-var-init=zero -fno-omit-frame-pointer'
+gcc_includes=\
+'-L.bin/lib -Isrc/lib -lmyutils -lm'
+gcc_optimizations=\
+'-O0'
+gcc_sanitizations=\
+'-fsanitize=undefined'
 
 printf '###############\n'
 printf '%s\n' "$filename"
 printf '###############\n'
 printf '=== compile ===\n'
 set -e
-gcc -c -g src/lib/myutils.c -o .bin/lib/myutils.o
+gcc $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
 ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
-gcc -O0 -g $gcc_warnings $filename -o $bin_name -L.bin/lib -lmyutils -lm -lbsd
+gcc \
+  $gcc_optimizations \
+  $gcc_sanitizations \
+  $gcc_debug_options \
+  $gcc_warnings \
+  -o $bin_name $filename \
+  $gcc_includes
 set +e
 printf '===  start  === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 
