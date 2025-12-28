@@ -20,33 +20,52 @@ if [[ ! -d ".bin/lib" ]]; then
   mkdir -p ".bin/lib"
 fi
 
-bin_name="./.bin/${filename#*/}"
+filename_parent="$(dirname $filename)"
+filename_parent_isolated="${filename_parent#*/}"
+if [[ "$filename_parent_isolated" == "src" ]]; then
+  bin_name="./.bin/${filename#*/}"
+else
+  bin_name="./.bin/$filename_parent_isolated"
+fi
 
-gcc_warnings=\
+compile_standalone() {
+  gcc_warnings=\
 '-Wall -Wextra -Wpedantic -Wreturn-type -Wdouble-promotion -Wfloat-conversion'
-gcc_debug_options=\
+  gcc_debug_options=\
 '-g -ftrivial-auto-var-init=zero -fno-omit-frame-pointer'
-gcc_includes=\
+  gcc_includes=\
 '-L.bin/lib -Isrc/lib -lmyutils -lm'
-gcc_optimizations=\
+  gcc_optimizations=\
 '-O0'
-gcc_sanitizations=\
+  gcc_sanitizations=\
 '-fsanitize=undefined'
 
+  gcc $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
+  ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
+  gcc \
+    $gcc_optimizations \
+    $gcc_sanitizations \
+    $gcc_debug_options \
+    $gcc_warnings \
+    -o $bin_name $filename \
+    $gcc_includes
+}
+
+compile_module() {
+  make -s --directory="${filename_parent}"
+  cp "${filename_parent}/main" "${bin_name}"
+}
+
 printf '###############\n'
-printf '%s\n' "$filename"
+printf '%s\n' "${bin_name##*/}"
 printf '###############\n'
 printf '=== compile ===\n'
 set -e
-gcc $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
-ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
-gcc \
-  $gcc_optimizations \
-  $gcc_sanitizations \
-  $gcc_debug_options \
-  $gcc_warnings \
-  -o $bin_name $filename \
-  $gcc_includes
+if [[ "$filename_parent_isolated" == "src" ]]; then
+  compile_standalone
+else
+  compile_module
+fi
 set +e
 printf '===  start  === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 

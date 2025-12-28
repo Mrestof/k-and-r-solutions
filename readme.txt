@@ -38,6 +38,16 @@ Dependencies you might need to use scripts in the repo:
   - libbsd  (don't ask me, I just like their utils)
 
 
+Source files structure:
+  - src/ : directory with all source files
+    - lib/ : directory with general purpose utils
+    - <name>.c : standalone unit (solution or sample)
+    - <name>/ : a more complex unit (if one file is not enough or custom \
+                compilation process is required)
+      - Makefile : describes how to compile this unit into one executable
+      - main : executable compiled by Makefile that's copied to /.bin/<name>
+
+
 Notes on specific exercises:
 
   4-3 - 4-7, 4-9:

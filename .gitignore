@@ -1,0 +1,11 @@
+# personal preferences
+/ref/
+/notes
+
+# runtime artifacts
+/fileoutput.txt
+/.bin
+/src/*/main
+
+# environment dependent
+/.gdb_history
