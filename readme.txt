@@ -50,10 +50,10 @@ Source files structure:
 
 Notes on specific exercises:
 
-  4-3 - 4-7, 4-9:
+  4-3 - 4-9:
     These exercises are iterative in a way, so just treat the one with the
     higher number as the version that contains the solutions for each of them.
-    4-8 and 4-10 on the other hand ask for modifications, so the solutions for
-    those are on their own. Also the testing process for any 4-3 - 4-10 task is
-    kinda loose, so if the testing breaks for some solution, try using the
+    4-10 on the other hand asks for modifications, so the solutions for it is
+    on its own. Also the testing process for any 4-3 - 4-10 task is kinda
+    loose, so if the testing breaks for some solution, try using the
     "fileinput.txt" version from the commit, where the solution was introduced.
