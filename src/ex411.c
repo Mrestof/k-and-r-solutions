@@ -54,6 +54,10 @@ int getop(char s[]) {
   char c, cprev;
   int i;
 
+  // just moving `bufp` and `buf` here as static variables and copy pasting
+  // logic from `getch` and `ungetch` to replace calls to them sounds not very
+  // interesting or hard, so I'm not going to do that
+
   while ((s[0] = c = getch()) == ' ' || c == '\t')
     ;
   s[1] = '\0';
