@@ -2,4 +2,5 @@ CompileFlags:
   Compiler: gcc
   Add: [
     -xc,
+    -std=c23
   ]
