@@ -6,6 +6,7 @@ cock test 😀 ultramegabigword	TAB!
 
 111 - 5
 -42 898
+13.37 -148.8 -0.5 1.23813985
 
 9827349283749273497234747477477474747474
 helphelphelp help	helphelph elphelphelphelp helphelphelp helphelphelphelphelp
