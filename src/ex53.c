@@ -16,7 +16,7 @@ void ch2_strcat(char s[], const char t[]) {
 
 // concatenate t to end of s; s must be big enough
 void ptr_strcat(char *s, const char *t) {
-  while (*s != '\0')
+  while (*s)
     s++;
   while ((*s++ = *t++));
 }
