@@ -24,6 +24,8 @@ filename_parent="$(dirname $filename)"
 filename_parent_isolated="${filename_parent#*/}"
 if [[ "$filename_parent_isolated" == "src" ]]; then
   bin_name="./.bin/${filename#*/}"
+elif [[ "$filename_parent_isolated" == "testfield" ]]; then
+  bin_name="./.bin/tf_${filename##*/}"
 else
   bin_name="./.bin/$filename_parent_isolated"
 fi
@@ -61,7 +63,10 @@ printf '%s\n' "${bin_name##*/}"
 printf '###############\n'
 printf '=== compile ===\n'
 set -e
-if [[ "$filename_parent_isolated" == "src" ]]; then
+if [[
+  "$filename_parent_isolated" == "src"
+  || "$filename_parent_isolated" == "testfield"
+]]; then
   compile_standalone
 else
   compile_module

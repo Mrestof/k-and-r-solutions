@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lib/myutils.h"
+#include "../lib/myutils.h"
 
 void test_find_str() {
   int i;
