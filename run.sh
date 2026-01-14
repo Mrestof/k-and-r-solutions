@@ -1,7 +1,7 @@
 #!/bin/env bash
 
-FIN=./fileinput.txt
-FOUT=./fileoutput.txt
+FIN=fileinput.txt
+FOUT=fileoutput.txt
 
 # TODO: this big chunk of code that finds the latest changes can be probably
 # done via Make more easier
@@ -23,11 +23,11 @@ fi
 filename_parent="$(dirname $filename)"
 filename_parent_isolated="${filename_parent#*/}"
 if [[ "$filename_parent_isolated" == "src" ]]; then
-  bin_name="./.bin/${filename#*/}"
+  bin_name=".bin/${filename#*/}"
 elif [[ "$filename_parent_isolated" == "testfield" ]]; then
-  bin_name="./.bin/tf_${filename##*/}"
+  bin_name=".bin/tf_${filename##*/}"
 else
-  bin_name="./.bin/$filename_parent_isolated"
+  bin_name=".bin/$filename_parent_isolated"
 fi
 
 compile_standalone() {
