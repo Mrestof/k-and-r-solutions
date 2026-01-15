@@ -29,6 +29,7 @@ elif [[ "$filename_parent_isolated" == "testfield" ]]; then
 else
   bin_name=".bin/$filename_parent_isolated"
 fi
+bin_name="${bin_name%.*}"
 
 compile_standalone() {
   gcc_warnings=\
