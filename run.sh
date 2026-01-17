@@ -3,8 +3,6 @@
 FIN=fileinput.txt
 FOUT=fileoutput.txt
 
-# TODO: this big chunk of code that finds the latest changes can be probably
-# done via Make more easier
 filename=$1
 if [[ -z "$filename" ]]; then
   last_edited=$(find src -type f -name '*.c' -not -name 'myutils.*' -printf '%T@ %p\n' | sort | tail -1 | cut -d' ' -f2)
