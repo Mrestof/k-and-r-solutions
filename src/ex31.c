@@ -55,7 +55,7 @@ int main() {
 
   srand(5);
   for (i = 1, a[0] = 0; i < ARRAY_SIZE; ++i) {
-    a[i] = a[i-1] + random();
+    a[i] = a[i-1] + rand();
   }
 
   printf("start v1\n");
