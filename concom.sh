@@ -1,6 +1,12 @@
 #!/bin/env bash
 
+run_cmd_fmt='./run.sh | ts %.T | sed -E "s/([0-9]{3})[0-9]*/\1|/"'
+
 while true; do
-  cat <(ls fileinput.txt run.sh) <(find src -type f -name '*.[ch]') |entr -dr sh -c './run.sh | ts %.T | sed -E "s/^([0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3})[0-9]*/\1|/"'
+  {
+    echo "$(ls fileinput.txt run.sh)";
+    echo "$(find src -type f -name '*.[ch]')";
+    echo "$(find tests -type f)";
+  } | entr -dr sh -c "$run_cmd_fmt"
   sleep 1
 done

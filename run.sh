@@ -1,5 +1,8 @@
 #!/bin/env bash
 
+# TODO: hook the selection of the active bin file to the latest test file
+# changed
+
 FIN=fileinput.txt
 FOUT=fileoutput.txt
 
@@ -27,7 +30,16 @@ elif [[ "$filename_parent_isolated" == "testfield" ]]; then
 else
   bin_name=".bin/$filename_parent_isolated"
 fi
-bin_name="${bin_name%.*}"
+
+if [[ "${bin_name##*/}" == *'.'* ]]; then
+  bin_name="${bin_name%.*}"
+fi
+
+if [[ -e "tests/${bin_name##*/}" ]]; then
+  test_name="tests/${bin_name##*/}"
+elif [[ -e "tests/${bin_name##*/}.bats" ]]; then
+  test_name="tests/${bin_name##*/}.bats"
+fi
 
 compile_standalone() {
   gcc_warnings=\
@@ -57,6 +69,26 @@ compile_module() {
   cp "${filename_parent}/main" "${bin_name}"
 }
 
+run_executable() {
+  printf '=== run bin === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+  $bin_name <$FIN |& tee $FOUT
+  return_code=${PIPESTATUS[0]}
+  if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
+    printf '\e[7m%%\e[0m\n'
+  fi
+  printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+}
+
+run_test() {
+  printf '=== run tst === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+  bats $test_name |& tee $FOUT
+  return_code=${PIPESTATUS[0]}
+  if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
+    printf '\e[7m%%\e[0m\n'
+  fi
+  printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+}
+
 printf '###############\n'
 printf '%s\n' "${bin_name##*/}"
 printf '###############\n'
@@ -71,15 +103,13 @@ else
   compile_module
 fi
 set +e
-printf '===  start  === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 
-$bin_name <$FIN |& tee $FOUT
-return_code=${PIPESTATUS[0]}
-if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
-  printf '\e[7m%%\e[0m\n'
+if [[ -z "$test_name" ]]; then
+  run_executable
+else
+  run_test
 fi
 
-printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 if [[ "$return_code" = "0" ]]; then
   printf 'return code: %s\n' "$return_code"
 else
