@@ -47,7 +47,7 @@ compile_standalone() {
   gcc_debug_options=\
 '-g -ftrivial-auto-var-init=zero -fno-omit-frame-pointer'
   gcc_includes=\
-'-L.bin/lib -Isrc/lib -lmyutils -lm'
+'-L.bin/lib -Isrc/lib -lmyutils -lm -lbsd'
   gcc_optimizations=\
 '-O0'
   gcc_sanitizations=\
