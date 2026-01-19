@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 #include "myutils.h"
 
 unsigned long next = 1;
@@ -49,4 +50,17 @@ int find_str(const char s[], char * const in[], const int in_len) {
       return i;
 
   return -1;
+}
+
+int getline(char* s, int lim) {
+  const char *sc = s;
+  int c;
+
+  for (; (c=getchar())!=EOF && c!='\n' && lim > 0; s++, lim--)
+    *s = c;
+  if (c == '\n' && lim > 0)
+    *s++ = c;
+  *s = '\0';
+
+  return s - sc;
 }

@@ -25,4 +25,8 @@ void reverse(char s[]);
 // not in the array
 int find_str(const char s[], char *const in[], const int in_len);
 
+// write max amnt of `lim` chars from stdin to `s`, return the amnt of chars
+// read
+int getline(char* s, int lim);
+
 #endif /* MYUTILS_H */
