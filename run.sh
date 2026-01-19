@@ -53,9 +53,10 @@ compile_standalone() {
   gcc_sanitizations=\
 '-fsanitize=undefined'
 
-  gcc $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
+  gcc -std=c23 $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
   ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
   gcc \
+    -std=c23 \
     $gcc_optimizations \
     $gcc_sanitizations \
     $gcc_debug_options \
