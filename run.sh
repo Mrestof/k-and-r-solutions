@@ -80,9 +80,22 @@ run_executable() {
   printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 }
 
+_color_tap() {
+  local GREEN='\033[0;32m'
+  local YELLOW='\033[1;33m'
+  local RESET='\033[0m'
+  local color=""
+
+  while IFS= read -r line; do
+      [[ "$line" =~ ^ok ]] && color="$GREEN"
+      [[ "$line" =~ ^not\ ok ]] && color="$YELLOW"
+      echo -e "${color}${line}${RESET}"
+  done
+}
+
 run_test() {
   printf '=== run tst === (%s)\n' "$(date +"%H:%M:%S.%3N")"
-  bats $test_name |& tee $FOUT
+  bats -F tap $test_name | _color_tap | tee $FOUT
   return_code=${PIPESTATUS[0]}
   if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
     printf '\e[7m%%\e[0m\n'
