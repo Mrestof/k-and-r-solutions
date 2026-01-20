@@ -35,10 +35,10 @@ if [[ "${bin_name##*/}" == *'.'* ]]; then
   bin_name="${bin_name%.*}"
 fi
 
-if [[ -e "tests/${bin_name##*/}" ]]; then
+if [[ -d "tests/${bin_name##*/}" ]]; then
+  test_name="tests/${bin_name##*/}/main"
+elif [[ -f "tests/${bin_name##*/}" ]]; then
   test_name="tests/${bin_name##*/}"
-elif [[ -e "tests/${bin_name##*/}.bats" ]]; then
-  test_name="tests/${bin_name##*/}.bats"
 fi
 
 compile_standalone() {
@@ -95,7 +95,7 @@ _color_tap() {
 
 run_test() {
   printf '=== run tst === (%s)\n' "$(date +"%H:%M:%S.%3N")"
-  bats -F tap $test_name | _color_tap | tee $FOUT
+  $test_name | _color_tap | tee $FOUT
   return_code=${PIPESTATUS[0]}
   if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
     printf '\e[7m%%\e[0m\n'

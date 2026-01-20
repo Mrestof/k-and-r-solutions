@@ -57,11 +57,11 @@ Files structure:
       - Makefile : describes how to compile this unit into one executable
       - main : executable compiled by Makefile that's copied to /.bin/<name>
   - tests/ : directory with all tests
-    - setup_suite.bash : common setup instructions for every test
-    - <name>.bats : a test for .bin/<name> executable
+    - setup_suite.bash : common setup instructions for every bats test
+    - <name> : a test for .bin/<name> executable
     - <name>/ : a directory containing a more complicated test for .bin/<name>
                 (ex: such, that needs input and output file samples to test on)
-      - main.bats : an entry point to the test in the directory
+      - main : an entry point to the test in the directory
   - .bin/ : directory with all compiled executables
     - lib/: directory containing libs' object and archive files
     - <name> : an executable (most likely produced by run.sh)
