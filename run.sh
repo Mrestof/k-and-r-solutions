@@ -42,6 +42,7 @@ elif [[ -f "tests/${bin_name##*/}" ]]; then
 fi
 
 compile_standalone() {
+  gcc_std='-std=c23'
   gcc_warnings=\
 '-Wall -Wextra -Wpedantic -Wreturn-type -Wdouble-promotion -Wfloat-conversion'
   gcc_debug_options=\
@@ -53,10 +54,15 @@ compile_standalone() {
   gcc_sanitizations=\
 '-fsanitize=undefined'
 
-  gcc -std=c23 $gcc_debug_options -c src/lib/myutils.c -o .bin/lib/myutils.o
+  gcc \
+    $gcc_std \
+    $gcc_optimizations \
+    $gcc_debug_options \
+    $gcc_warnings \
+    -c src/lib/myutils.c -o .bin/lib/myutils.o
   ar rcs .bin/lib/libmyutils.a .bin/lib/myutils.o
   gcc \
-    -std=c23 \
+    $gcc_std \
     $gcc_optimizations \
     $gcc_sanitizations \
     $gcc_debug_options \
