@@ -1,0 +1,131 @@
+#!/bin/env bats
+
+setup() {
+  bats_load_library bats-file
+  bats_load_library bats-assert
+  bats_load_library bats-support
+}
+
+# Detab tests with custom tab stops
+
+@test "1. Default detab (no args): ex511 detab <<< 'atb'" {
+    run ex511 detab <<< $'atb'
+    assert_success
+    assert_output "a       b"
+}
+
+@test "2. Custom detab stops 4 8: ex511 detab 4 8 <<< 'atbtc'" {
+    run ex511 detab 4 8 <<< $'atbtc'
+    assert_success
+    assert_output "a   b   c"
+}
+
+@test "3. Single detab stop: ex511 detab 4 <<< 'atb'" {
+    run ex511 detab 4 <<< $'atb'
+    assert_success
+    assert_output "a   b"
+}
+
+@test "4. Multiple detab stops: ex511 detab 3 6 10 <<< 'abtctdte'" {
+    run ex511 detab 3 6 10 <<< $'abtctdte'
+    assert_success
+    assert_output "ab c  d   e"
+}
+
+@test "5. Irregular detab stops: ex511 detab 5 12 <<< 'atbtc'" {
+    run ex511 detab 5 12 <<< $'atbtc'
+    assert_success
+    assert_output "a    b      c"
+}
+
+@test "6. Leading detab tab: ex511 detab 4 8 <<< 'thello'" {
+    run ex511 detab 4 8 <<< $'thello'
+    assert_success
+    assert_output "    hello"
+}
+
+@test "7. Detab custom position: ex511 detab 2 6 <<< 'atbtc'" {
+    run ex511 detab 2 6 <<< $'atbtc'
+    assert_success
+    assert_output "a b   c"
+}
+
+@test "8. Large detab stop: ex511 detab 16 <<< 'atb'" {
+    run ex511 detab 16 <<< $'atb'
+    assert_success
+    assert_output "a               b"
+}
+
+@test "9. Multiple detab tabs: ex511 detab 4 <<< 'tthello'" {
+    run ex511 detab 4 <<< $'tthello'
+    assert_success
+    assert_output "        hello"
+}
+
+@test "10. No detab tabs: ex511 detab 4 8 <<< 'hello world'" {
+    run ex511 detab 4 8 <<< "hello world"
+    assert_success
+    assert_output "hello world"
+}
+
+# Entab tests with custom tab stops
+
+@test "11. Default entab (no args): ex511 entab <<< 'a       b'" {
+    run ex511 entab <<< 'a       b'
+    assert_success
+    assert_output $'atb'
+}
+
+@test "12. Custom entab stops 4 8: ex511 entab 4 8 <<< 'a   b   c'" {
+    run ex511 entab 4 8 <<< 'a   b   c'
+    assert_success
+    assert_output $'atbtc'
+}
+
+@test "13. Single entab stop: ex511 entab 4 <<< 'a   b'" {
+    run ex511 entab 4 <<< 'a   b'
+    assert_success
+    assert_output $'atb'
+}
+
+@test "14. Multiple entab stops: ex511 entab 3 6 10 <<< 'ab c  d   e'" {
+    run ex511 entab 3 6 10 <<< 'ab c  d   e'
+    assert_success
+    assert_output $'abtctdte'
+}
+
+@test "15. Irregular entab stops: ex511 entab 5 12 <<< 'a    b      c'" {
+    run ex511 entab 5 12 <<< 'a    b      c'
+    assert_success
+    assert_output $'atbtc'
+}
+
+@test "16. Leading entab spaces: ex511 entab 4 8 <<< '    hello'" {
+    run ex511 entab 4 8 <<< '    hello'
+    assert_success
+    assert_output $'thello'
+}
+
+@test "17. Entab custom position: ex511 entab 2 6 <<< 'a b   c'" {
+    run ex511 entab 2 6 <<< 'a b   c'
+    assert_success
+    assert_output $'atbtc'
+}
+
+@test "18. Large entab stop: ex511 entab 16 <<< 'a               b'" {
+    run ex511 entab 16 <<< 'a               b'
+    assert_success
+    assert_output $'atb'
+}
+
+@test "19. Partial entab spaces: ex511 entab 4 <<< 'a  b'" {
+    run ex511 entab 4 <<< 'a  b'
+    assert_success
+    assert_output "a  b"
+}
+
+@test "20. No entab spaces: ex511 entab 4 8 <<< 'hello world'" {
+    run ex511 entab 4 8 <<< "hello world"
+    assert_success
+    assert_output "hello world"
+}
