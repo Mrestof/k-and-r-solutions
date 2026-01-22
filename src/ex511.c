@@ -35,7 +35,7 @@ int entab(int tabstops[]) {
 
   while ((linelen = getline(inpl, MAXL)) > 0) {
     for (i = j = 0; i < linelen; i++, j++) {
-      if (i+1 == tabstops[tsi]) {
+      if (i+1 >= tabstops[tsi]) {
         tsi++;
         if (inpl[i] == ' ') {
           for (; j > 0 && outl[j - 1] == ' '; j--)
