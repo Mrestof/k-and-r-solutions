@@ -16,7 +16,7 @@ void my_srand(unsigned long seed) {
 
 bool is_prime(long num) {
   if (num < 2) return false;
-  long max_factor = sqrt(num);
+  long max_factor = (long)sqrt(num);
   for (long a = 2; a <= max_factor; a++)
     if (num % a == 0) return false;
   return true;
