@@ -29,10 +29,31 @@ int detab(int tabstops[]) {
 }
 
 int entab(int tabstops[]) {
+  char inpl[MAXL], outl[MAXL];
+  int i, j, linelen;
+  int tsi = 0;
+
+  while ((linelen = getline(inpl, MAXL)) > 0) {
+    for (i = j = 0; i < linelen; i++, j++) {
+      if (i+1 == tabstops[tsi]) {
+        tsi++;
+        if (inpl[i] == ' ') {
+          for (; j > 0 && outl[j - 1] == ' '; j--)
+            outl[j] = '\0';
+          outl[j] = 't';
+          continue;
+        }
+      }
+      outl[j] = inpl[i];
+    }
+  }
+
+  printf("%s", outl);
   return 0;
 }
 
 int main(int argc, char* argv[]) {
+  (void)argc;
   char *subprogname = *++argv;
   int tabstops[MAXT];
   int i;
