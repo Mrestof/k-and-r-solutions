@@ -58,6 +58,9 @@ int main(int argc, char* argv[]) {
   int tabstops[MAXT];
   int i;
 
+  if (argc == 1)
+    return 1;
+
   argv++;
   for (i = 0; argv[i]; i++)
     tabstops[i] = atoi(argv[i]);
