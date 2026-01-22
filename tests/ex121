@@ -11,19 +11,19 @@ setup() {
 @test "1. Seven spaces to next tab stop: ex121 <<< 'a       b'" {
     run ex121 <<< 'a       b'
     assert_success
-    assert_output $'atb'
+    assert_output $'a\tb'
 }
 
 @test "2. Leading eight spaces: ex121 <<< '        hello'" {
     run ex121 <<< '        hello'
     assert_success
-    assert_output $'thello'
+    assert_output $'\thello'
 }
 
 @test "3. Sixteen spaces to two tabs: ex121 <<< '                b'" {
     run ex121 <<< '                b'
     assert_success
-    assert_output $'ttb'
+    assert_output $'\t\tb'
 }
 
 @test "4. Partial spaces preserved: ex121 <<< 'a   b'" {
@@ -35,7 +35,7 @@ setup() {
 @test "5. Six spaces to next tab stop: ex121 <<< 'ab      c'" {
     run ex121 <<< 'ab      c'
     assert_success
-    assert_output $'abtc'
+    assert_output $'ab\tc'
 }
 
 @test "6. No spaces present: ex121 <<< 'hello world'" {
@@ -44,22 +44,22 @@ setup() {
     assert_output "hello world"
 }
 
-@test "7. Preserve existing tabs: ex121 <<< 'atb'" {
-    run ex121 <<< $'atb'
+@test "7. Preserve existing tabs: ex121 <<< 'a\tb'" {
+    run ex121 <<< $'a\tb'
     assert_success
-    assert_output $'atb'
+    assert_output $'a\tb'
 }
 
 @test "8. Multiple tab stops: ex121 <<< 'a       b      c'" {
     run ex121 <<< 'a       b       c'
     assert_success
-    assert_output $'atbtc'
+    assert_output $'a\tb\tc'
 }
 
-@test "9. Mixed tabs and spaces: ex121 <<< 'atb       c'" {
-    run ex121 <<< $'atb       c'
+@test "9. Mixed tabs and spaces: ex121 <<< 'a\tb       c'" {
+    run ex121 <<< $'a\tb       c'
     assert_success
-    assert_output $'atbtc'
+    assert_output $'a\tb\tc'
 }
 
 @test "10. Single space preserved: ex121 <<< 'a b'" {

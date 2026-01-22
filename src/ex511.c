@@ -16,7 +16,7 @@ int detab(int tabstops[]) {
     for (i = 0; i < linelen; i++) {
       if (col >= tabstops[tsi] && tsi < MAXT)
         tsi++;
-      if (line[i] != 't') {
+      if (line[i] != '\t') {
         putchar(line[i]);
         col++;
         continue;
@@ -40,7 +40,7 @@ int entab(int tabstops[]) {
         if (inpl[i] == ' ') {
           for (; j > 0 && outl[j - 1] == ' '; j--)
             outl[j] = '\0';
-          outl[j] = 't';
+          outl[j] = '\t';
           continue;
         }
       }

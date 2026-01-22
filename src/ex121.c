@@ -14,10 +14,10 @@ int main() {
       if (col == 0 && inpl[i] == ' ') {
         for (; j > 0 && outl[j - 1] == ' '; j--)
           outl[j] = '\0';
-        outl[j] = 't';
+        outl[j] = '\t';
       } else
         outl[j] = inpl[i];
-      if (inpl[i] == 't')
+      if (inpl[i] == '\t')
         col = 0;
       col = col == TS - 1 ? 0 : col + 1;
     }
