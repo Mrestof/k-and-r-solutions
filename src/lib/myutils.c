@@ -64,3 +64,44 @@ int getline(char* s, int lim) {
 
   return s - sc;
 }
+
+#define ALLOCSIZE 10'000
+
+static char allocbuf[ALLOCSIZE]; // storage for alloc
+static char *allocp = allocbuf; // next free position
+
+char *alloc(int n) {
+  if (allocbuf + ALLOCSIZE - allocp >= n) {
+    allocp += n;
+    return allocp - n;
+  }
+  return NULL;
+}
+
+void afree(char *p) {
+  if (p >= allocbuf && p < allocbuf + ALLOCSIZE)
+    allocp = p;
+}
+
+#define MAXLEN 1000 // max length of any input line
+
+int readlines(char *lineptr[], int maxlines) {
+  int len, nlines;
+  char *p, line[MAXLEN];
+
+  nlines = 0;
+  while ((len = getline(line, MAXLEN)) > 0)
+    if (nlines >= maxlines || (p = alloc(len)) == NULL)
+      return -1;
+    else {
+      line[len-1] = '\0'; // delete newline
+      strcpy(p, line);
+      lineptr[nlines++] = p;
+    }
+  return nlines;
+}
+
+void writelines(char *lineptr[], int nlines) {
+  while (nlines-- > 0)
+    printf("%s\n", *lineptr++);
+}

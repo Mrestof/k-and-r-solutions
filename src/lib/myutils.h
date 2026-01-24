@@ -25,8 +25,17 @@ void reverse(char s[]);
 // not in the array
 int find_str(const char s[], char *const in[], const int in_len);
 
+// return pointer to n characters
+char *alloc(int n);
+// free storage pointed to by p
+void afree(char *p);
+
 // write max amnt of `lim` chars from stdin to `s`, return the amnt of chars
 // read
 int getline(char* s, int lim);
+// read input lines
+int readlines(char *lineptr[], int maxlines);
+// write output lines
+void writelines(char *lineptr[], int nlines);
 
 #endif /* MYUTILS_H */
