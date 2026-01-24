@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   int pl_cur = 0;
 
   if (argc == 1)
-    n = 20;
+    n = 10;
   else if (argc == 2)
     n = atoi(&argv[1][1]);
   else
