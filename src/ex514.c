@@ -41,16 +41,16 @@ void kr_qsort(
   int (*comp)(void *, void *)
 ) {
   int i, last;
-  void swap(void *v[], int, int);
+  void arr_swap(void *v[], int, int);
 
   if (left >= right)  /* do nothing if array contains */
     return;       /* fewer than two elements */
-  swap(v, left, (left + right)/2);
+  arr_swap(v, left, (left + right)/2);
   last = left;
   for (i = left+1; i <= right; i++)
     if ((*comp)(v[i], v[left]) < 0)
-      swap(v, ++last, i);
-  swap(v, left, last);
+      arr_swap(v, ++last, i);
+  arr_swap(v, left, last);
   kr_qsort(v, left, last-1, comp);
   kr_qsort(v, last+1, right, comp);
 }
@@ -70,7 +70,7 @@ int numcmp(const char *s1, const char *s2)
     return 0;
 }
 
-void swap(void *v[], int i, int j)
+void arr_swap(void *v[], int i, int j)
 {
   void *temp;
 
