@@ -18,8 +18,8 @@ char *alloc(int size) {
   return p;
 }
 
-void cycle(int* n, int cycle_size) {
-  *n = *n + 1 >= cycle_size ? 0 : *n + 1;
+int cycle(int n, int cycle_size) {
+  return n + 1 >= cycle_size ? 0 : n + 1;
 }
 
 int main(int argc, char* argv[]) {
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   int pl_cur = 0;
 
   if (argc == 1)
-    n = 3;  // BUG: infinite loop on n=1 and n=2
+    n = 20;
   else if (argc == 2)
     n = atoi(&argv[1][1]);
   else
@@ -48,13 +48,13 @@ int main(int argc, char* argv[]) {
   while ((linesize = getline(line, MAXLINE)) > 0) {
     prevlines[pl_cur] = alloc(linesize+1);
     strcpy(prevlines[pl_cur], line);
-    cycle(&pl_cur, n);
+    pl_cur = cycle(pl_cur, n);
     if (!f_cycle && pl_cur == 0)
       f_cycle = true;
   }
 
   if (f_cycle) {
-    for (i = pl_cur; i + 1 != pl_cur; cycle(&i, n))
+    for (i = pl_cur; cycle(i, n) != pl_cur; i = cycle(i, n))
       printf("%s", prevlines[i]);
     printf("%s", prevlines[i]);
   }
