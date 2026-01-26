@@ -57,13 +57,14 @@ setup() {
 }
 
 @test "9. Reverse with empty lines: ex514 -r <<< 'c\n\na\nb'" {
-    run ex514 -r <<< $'c\n\na\nb'
-    assert_success
     # bats has issues with empty lines when tested with assert_output :/
-    assert_line --index 0 "c"
-    assert_line --index 1 "b"
-    assert_line --index 2 "a"
-    assert_line --index 3 ""
+    tmpdir="$(temp_make)"
+    expected="$tmpdir/expected"
+    actual="$tmpdir/actual"
+    printf 'c\nb\na\n\n' > "$expected"
+    ex514 -r <<< $'c\n\na\nb' > "$actual"
+    assert_files_equal "$actual" "$expected"
+    temp_del "$tmpdir"
 }
 
 @test "10. Large reverse numeric list: ex514 -rn <<< '1\n25\n50\n75\n100'" {
