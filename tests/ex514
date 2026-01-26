@@ -1,0 +1,73 @@
+#!/bin/env bats
+
+setup() {
+  bats_load_library bats-file
+  bats_load_library bats-assert
+  bats_load_library bats-support
+}
+
+# Tests for #5-14 sort program
+
+@test "1. Basic reverse alphabetic sort: ex514 -r <<< 'alpha\nbravo\ncharlie'" {
+    run ex514 -r <<< $'alpha\nbravo\ncharlie'
+    assert_success
+    assert_output $'charlie\nbravo\nalpha'
+}
+
+@test "2. Reverse numeric sort: ex514 -r -n <<< '2\n10\n100'" {
+    run ex514 -r -n <<< $'2\n10\n100'
+    assert_success
+    assert_output $'100\n10\n2'
+}
+
+@test "3. Combined flags different order: ex514 -n -r <<< '2\n10\n100'" {
+    run ex514 -n -r <<< $'2\n10\n100'
+    assert_success
+    assert_output $'100\n10\n2'
+}
+
+@test "4. Reverse with negative numbers: ex514 -n -r <<< '5\n-10\n2'" {
+    run ex514 -n -r <<< $'5\n-10\n2'
+    assert_success
+    assert_output $'5\n2\n-10'
+}
+
+@test "5. Normal vs reverse comparison: ex514 -r <<< '10\n2\n100'" {
+    run ex514 -r <<< $'10\n2\n100'
+    assert_success
+    assert_output $'2\n100\n10'
+}
+
+@test "6. Reverse case sensitive: ex514 -r <<< 'Apple\napple\nbanana'" {
+    run ex514 -r <<< $'Apple\napple\nbanana'
+    assert_success
+    assert_output $'banana\napple\nApple'
+}
+
+@test "7. Single line with reverse: ex514 -r <<< 'oneline'" {
+    run ex514 -r <<< 'oneline'
+    assert_success
+    assert_output "oneline"
+}
+
+@test "8. Reverse numeric with decimals: ex514 -nr <<< '2.5\n3.14\n10.0'" {
+    run ex514 -r -n <<< $'2.5\n3.14\n10.0'
+    assert_success
+    assert_output $'10.0\n3.14\n2.5'
+}
+
+@test "9. Reverse with empty lines: ex514 -r <<< 'c\n\na\nb'" {
+    run ex514 -r <<< $'c\n\na\nb'
+    assert_success
+    # bats has issues with empty lines when tested with assert_output :/
+    assert_line --index 0 "c"
+    assert_line --index 1 "b"
+    assert_line --index 2 "a"
+    assert_line --index 3 ""
+}
+
+@test "10. Large reverse numeric list: ex514 -rn <<< '1\n25\n50\n75\n100'" {
+    run ex514 -r -n <<< $'1\n25\n50\n75\n100'
+    assert_success
+    assert_output $'100\n75\n50\n25\n1'
+}

@@ -9,7 +9,7 @@ int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
 void kr_qsort(
-  void *lineptr[], int left, int right,
+  void *lineptr[], int left, int right, int reverse,
   int (*comp)(void *, void *)
 );
 int numcmp(const char *, const char *);
@@ -19,12 +19,24 @@ int main(int argc, char *argv[])
 {
   int nlines;    /* number of input lines read */
   int numeric = 0;   /* 1 if numeric sort */
+  int reverse = 1;   /* -1 if reverse sort */
 
-  if (argc > 1 && strcmp(argv[1], "-n") == 0)
-    numeric = 1;
+  while (--argc > 0 && **++argv == '-')
+    while (*++*argv)
+      switch (**argv) {
+      case 'n':
+        numeric = 1;
+        break;
+      case 'r':
+        reverse = -1;
+        break;
+      default:
+        return 2;
+      }
+
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
     kr_qsort(
-      (void**) lineptr, 0, nlines-1,
+      (void**) lineptr, 0, nlines-1, reverse,
       (int (*)(void*,void*))(numeric ? numcmp : strcmp)
     );
     writelines(lineptr, nlines);
@@ -37,7 +49,7 @@ int main(int argc, char *argv[])
 
 /* kr_qsort: sort v[left]...v[right] into increasing order */
 void kr_qsort(
-  void *v[], int left, int right,
+  void *v[], int left, int right, int reverse,
   int (*comp)(void *, void *)
 ) {
   int i, last;
@@ -48,11 +60,11 @@ void kr_qsort(
   arr_swap(v, left, (left + right)/2);
   last = left;
   for (i = left+1; i <= right; i++)
-    if ((*comp)(v[i], v[left]) < 0)
+    if (reverse * (*comp)(v[i], v[left]) < 0)
       arr_swap(v, ++last, i);
   arr_swap(v, left, last);
-  kr_qsort(v, left, last-1, comp);
-  kr_qsort(v, last+1, right, comp);
+  kr_qsort(v, left, last-1, reverse, comp);
+  kr_qsort(v, last+1, right, reverse, comp);
 }
 
 /* numcmp: compare s1 and s2 numerically */
