@@ -77,13 +77,11 @@ compile_module() {
 }
 
 run_executable() {
-  printf '=== run bin === (%s)\n' "$(date +"%H:%M:%S.%3N")"
   $bin_name <$FIN |& tee $FOUT
   return_code=${PIPESTATUS[0]}
   if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
     printf '\e[7m%%\e[0m\n'
   fi
-  printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 }
 
 _color_tap() {
@@ -100,13 +98,16 @@ _color_tap() {
 }
 
 run_test() {
-  printf '=== run tst === (%s)\n' "$(date +"%H:%M:%S.%3N")"
   $test_name | _color_tap | tee $FOUT
   return_code=${PIPESTATUS[0]}
   if [[ $(tail -c1 $FOUT | wc -l) -eq 0 ]]; then
     printf '\e[7m%%\e[0m\n'
   fi
-  printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+}
+
+time_it() {
+  TIMEFORMAT='time: %2Rs'
+  { time $1 ; } 2>&1
 }
 
 printf '###############\n'
@@ -125,10 +126,13 @@ fi
 set +e
 
 if [[ -z "$test_name" ]]; then
-  run_executable
+  printf '=== run bin === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+  time_it run_executable
 else
-  run_test
+  printf '=== run tst === (%s)\n' "$(date +"%H:%M:%S.%3N")"
+  time_it run_test
 fi
+printf '===   end   === (%s)\n' "$(date +"%H:%M:%S.%3N")"
 
 if [[ "$return_code" = "0" ]]; then
   printf 'return code: %s\n' "$return_code"
