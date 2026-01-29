@@ -1,74 +1,101 @@
-#!/bin/env bats
+#!/bin/bash
 
-setup() {
-  bats_load_library bats-file
-  bats_load_library bats-assert
-  bats_load_library bats-support
+BINDIR='.bin'
+PATH="$BINDIR:$PATH"
+
+PASS=0
+FAIL=0
+EXE="ex514"
+
+run_test() {
+  local input="$1"
+  local expected="$2"
+  shift 2
+  local cmd=("$@")
+
+  local pass=false
+
+  local actual=$(echo -n "$input" | "${cmd[@]}" 2>&1; echo x); actual=${actual%x}
+  local exit_code=$?
+
+  if [[ $exit_code -eq 0 && "$actual" == "$expected" ]]; then
+    pass=true
+    ((PASS++))
+  else
+    echo -n "not "
+    ((FAIL++))
+  fi
+
+  echo "ok - "${cmd[@]}" \t input:'$(echo -n "$input" | tr '\n' '|')'"
+
+  if [ "$pass" = false ]; then
+    echo "#   Expected: $(echo -en "$expected" | tr '\n' '|')"
+    echo "#   Actual:   $(echo -en "$actual" | tr '\n' '|')"
+    echo "#   Exit code: $exit_code"
+  fi
 }
 
-# Tests for #5-14 sort program
+# Test 1: Basic reverse alphabetic sort
+run_test \
+  $'alpha\nbravo\ncharlie\n' \
+  $'charlie\nbravo\nalpha\n' \
+  "$EXE" -r
 
-@test "1. Basic reverse alphabetic sort: ex514 -r <<< 'alpha\nbravo\ncharlie'" {
-    run ex514 -r <<< $'alpha\nbravo\ncharlie'
-    assert_success
-    assert_output $'charlie\nbravo\nalpha'
-}
+# Test 2: Normal vs reverse comparison (verify -r actually reverses)
+run_test \
+  $'charlie\nbravo\nalpha\n' \
+  $'alpha\nbravo\ncharlie\n' \
+  "$EXE"
 
-@test "2. Reverse numeric sort: ex514 -r -n <<< '2\n10\n100'" {
-    run ex514 -r -n <<< $'2\n10\n100'
-    assert_success
-    assert_output $'100\n10\n2'
-}
+# Test 3: Reverse numeric sort with negatives and decimals
+run_test \
+  $'5\n-10.5\n2.3\n100\n' \
+  $'100\n5\n2.3\n-10.5\n' \
+  "$EXE" -r -n
 
-@test "3. Combined flags different order: ex514 -n -r <<< '2\n10\n100'" {
-    run ex514 -n -r <<< $'2\n10\n100'
-    assert_success
-    assert_output $'100\n10\n2'
-}
+# Test 4: Combined flags different order
+run_test \
+  $'5\n-10\n2\n' \
+  $'5\n2\n-10\n' \
+  "$EXE" -nr
 
-@test "4. Reverse with negative numbers: ex514 -n -r <<< '5\n-10\n2'" {
-    run ex514 -n -r <<< $'5\n-10\n2'
-    assert_success
-    assert_output $'5\n2\n-10'
-}
+# Test 5: Identical lines and whitespace
+run_test \
+  $'same\nsame\n  \nsame\n' \
+  $'same\nsame\nsame\n  \n' \
+  "$EXE" -r
 
-@test "5. Normal vs reverse comparison: ex514 -r <<< '10\n2\n100'" {
-    run ex514 -r <<< $'10\n2\n100'
-    assert_success
-    assert_output $'2\n100\n10'
-}
+# Test 6: Single line edge case
+run_test \
+  $'oneline\n' \
+  $'oneline\n' \
+  "$EXE" -r
 
-@test "6. Reverse case sensitive: ex514 -r <<< 'Apple\napple\nbanana'" {
-    run ex514 -r <<< $'Apple\napple\nbanana'
-    assert_success
-    assert_output $'banana\napple\nApple'
-}
+# Test 7: Empty lines positioning
+run_test \
+  $'c\n\na\nb\n' \
+  $'c\nb\na\n\n' \
+  "$EXE" -r
 
-@test "7. Single line with reverse: ex514 -r <<< 'oneline'" {
-    run ex514 -r <<< 'oneline'
-    assert_success
-    assert_output "oneline"
-}
+# Test 8: Case sensitivity test
+run_test \
+  $'Apple\napple\nBanana\n' \
+  $'apple\nBanana\nApple\n' \
+  "$EXE" -r
 
-@test "8. Reverse numeric with decimals: ex514 -nr <<< '2.5\n3.14\n10.0'" {
-    run ex514 -r -n <<< $'2.5\n3.14\n10.0'
-    assert_success
-    assert_output $'10.0\n3.14\n2.5'
-}
+# Test 9: Numeric with non-numeric fallback
+run_test \
+  $'10\nabc\n2\n' \
+  $'10\n2\nabc\n' \
+  "$EXE" -nr
 
-@test "9. Reverse with empty lines: ex514 -r <<< 'c\n\na\nb'" {
-    # bats has issues with empty lines when tested with assert_output :/
-    tmpdir="$(temp_make)"
-    expected="$tmpdir/expected"
-    actual="$tmpdir/actual"
-    printf 'c\nb\na\n\n' > "$expected"
-    ex514 -r <<< $'c\n\na\nb' > "$actual"
-    assert_files_equal "$actual" "$expected"
-    temp_del "$tmpdir"
-}
+# Test 10: Large numeric range
+run_test \
+  $'1\n1000\n50\n' \
+  $'1000\n50\n1\n' \
+  "$EXE" -rn
 
-@test "10. Large reverse numeric list: ex514 -rn <<< '1\n25\n50\n75\n100'" {
-    run ex514 -r -n <<< $'1\n25\n50\n75\n100'
-    assert_success
-    assert_output $'100\n75\n50\n25\n1'
-}
+if [[ $FAIL -gt 0 ]]; then
+  echo -n 'not '
+fi
+echo "ok:pass=$PASS,fail=$FAIL"
