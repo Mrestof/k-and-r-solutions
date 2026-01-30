@@ -15,10 +15,12 @@ faulty, though some might make little sense or be repetitive.
 To run a solution you have a few options:
 
   1. Use `run.sh`
-    - by default, compiles and runs the latest changed C file in src, or the
-      file you pass as the first argument to the script
-      - if a test is present in "tests" folder for the active bin file (checked
-        by comparing file stems), then run the test
+    - by default, compiles and runs the latest changed C file in "src" or the
+      latest changed test file in "tests", or the file you pass as the first
+      argument to the script
+      - if the latest changed file is a C file from "src" and a test is present
+        in "tests" folder for it (checked by comparing file stems), then run
+        the test
     - redirects content of `fileinput.txt` to stdin of the binary
     - redirects stdout of the binary to the `fileoutput.txt`
     - logs the start and finish time of the binary
