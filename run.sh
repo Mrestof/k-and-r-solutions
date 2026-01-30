@@ -1,15 +1,19 @@
 #!/bin/env bash
 
-# TODO: hook the selection of the active bin file to the latest test file
-# changed
-
 FIN=fileinput.txt
 FOUT=fileoutput.txt
 
 filename=$1
 if [[ -z "$filename" ]]; then
-  last_edited=$(find src -type f -name '*.c' -not -name 'myutils.*' -printf '%T@ %p\n' | sort | tail -1 | cut -d' ' -f2)
-  if [[ ! $last_edited =~ .+\.c ]]; then
+  fmt='%T@ %p\n'
+  last_edited=$({
+    echo "$(find src -type f -name '*.c' ! -name 'myutils.*' -printf "$fmt")";
+    echo "$(find tests -type f -name 'ex*' -printf "$fmt")";
+  } | sort | tail -1 | cut -d' ' -f2)
+  if [[
+    ! $last_edited =~ .+\.c 
+    && ! "$(dirname $last_edited)" == "tests"
+  ]]; then
     printf 'usage: %s FILE\n' "$0"
     printf '(or the last edited file must be *.c)\n'
     exit 1
@@ -27,6 +31,8 @@ if [[ "$filename_parent_isolated" == "src" ]]; then
   bin_name=".bin/${filename#*/}"
 elif [[ "$filename_parent_isolated" == "testfield" ]]; then
   bin_name=".bin/tf_${filename##*/}"
+elif [[ "$filename_parent_isolated" == "tests" ]]; then
+  bin_name=".bin/${filename##*/}"
 else
   bin_name=".bin/$filename_parent_isolated"
 fi
@@ -115,13 +121,16 @@ printf '%s\n' "${bin_name##*/}"
 printf '###############\n'
 printf '=== compile ===\n'
 set -e
-if [[
-  "$filename_parent_isolated" == "src"
-  || "$filename_parent_isolated" == "testfield"
-]]; then
-  compile_standalone
-else
-  compile_module
+# NOTE: might be an issue if test is written before bin exists, edge case idc
+if [[ "$filename_parent_isolated" != 'tests' ]]; then
+  if [[
+    "$filename_parent_isolated" == "src"
+    || "$filename_parent_isolated" == "testfield"
+  ]]; then
+    compile_standalone
+  else
+    compile_module
+  fi
 fi
 set +e
 
