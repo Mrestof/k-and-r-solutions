@@ -1,69 +1,59 @@
-#!/bin/env bats
+#!/bin/bash
 
-setup() {
-  bats_load_library bats-file
-  bats_load_library bats-assert
-  bats_load_library bats-support
-}
+source tests/common.bash
 
-# Basic detab functionality tests
+EXE="ex120"
 
-@test "Single tab at beginning: ex120 <<< '\thello'" {
-    run ex120 <<< $'\thello'
-    assert_success
-    assert_output "        hello"
-}
+tests=(
+  1 # Single tab at beginning
+  $'\thello\n'
+  $'        hello\n'
+  0 "$EXE"
 
-@test "Single tab in middle: ex120 <<< 'a\tb'" {
-    run ex120 <<< $'a\tb'
-    assert_success
-    assert_output "a       b"
-}
+  2 # Single tab in middle
+  $'a\tb\n'
+  $'a       b\n'
+  0 "$EXE"
 
-@test "Multiple tabs: ex120 <<< 'a\tb\tc'" {
-    run ex120 <<< $'a\tb\tc'
-    assert_success
-    assert_output "a       b       c"
-}
+  3 # Multiple tabs
+  $'a\tb\tc\n'
+  $'a       b       c\n'
+  0 "$EXE"
 
-@test "Tab alignment test: ex120 <<< 'ab\tcd'" {
-    run ex120 <<< $'ab\tcd'
-    assert_success
-    assert_output "ab      cd"
-}
+  4 # Tab alignment test
+  $'ab\tcd\n'
+  $'ab      cd\n'
+  0 "$EXE"
 
-@test "Tab after 7 chars: ex120 <<< 'abcdefg\th'" {
-    run ex120 <<< $'abcdefg\th'
-    assert_success
-    assert_output "abcdefg h"
-}
+  5 # Tab after 7 chars
+  $'abcdefg\th\n'
+  $'abcdefg h\n'
+  0 "$EXE"
 
-@test "No tabs present: ex120 <<< 'hello world'" {
-    run ex120 <<< 'hello world'
-    assert_success
-    assert_output "hello world"
-}
+  6 # No tabs present
+  $'hello world\n'
+  $'hello world\n'
+  0 "$EXE"
 
-@test "Empty input: ex120 <<< ''" {
-    run ex120 <<< ''
-    assert_success
-    assert_output ""
-}
+  7 # Empty input
+  $''
+  $''
+  0 "$EXE"
 
-@test "Only tab character: ex120 <<< '\t'" {
-    run ex120 <<< $'\t'
-    assert_success
-    assert_output "        "
-}
+  8 # Only tab character
+  $'\t\n'
+  $'        \n'
+  0 "$EXE"
 
-@test "Consecutive tabs: ex120 <<< 'a\t\tb'" {
-    run ex120 <<< $'a\t\tb'
-    assert_success
-    assert_output "a               b"
-}
+  9 # Consecutive tabs
+  $'a\t\tb\n'
+  $'a               b\n'
+  0 "$EXE"
 
-@test "Mixed spaces and tabs: ex120 <<< 'a  \tb'" {
-    run ex120 <<< $'a  \tb'
-    assert_success
-    assert_output "a       b"
-}
+  10 # Mixed spaces and tabs
+  $'a  \tb\n'
+  $'a       b\n'
+  0 "$EXE"
+)
+
+run_tests "${tests[@]}"

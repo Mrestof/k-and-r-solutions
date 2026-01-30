@@ -18,7 +18,7 @@ To run a solution you have a few options:
     - by default, compiles and runs the latest changed C file in src, or the
       file you pass as the first argument to the script
       - if a test is present in "tests" folder for the active bin file (checked
-        by comparing file stems), then run the test with `bats` framework
+        by comparing file stems), then run the test
     - redirects content of `fileinput.txt` to stdin of the binary
     - redirects stdout of the binary to the `fileoutput.txt`
     - logs the start and finish time of the binary
@@ -38,11 +38,6 @@ Dependencies you might need to use scripts in the repo:
   - entr
   - gcc
   - libbsd  (don't ask me, I just like their utils)
-  - bats  (testing framework)
-    - the core framework
-    - bats-file
-    - bats-assert
-    - bats-support
 
 
 Files structure:
@@ -57,7 +52,7 @@ Files structure:
       - Makefile : describes how to compile this unit into one executable
       - main : executable compiled by Makefile that's copied to /.bin/<name>
   - tests/ : directory with all tests
-    - setup_suite.bash : common setup instructions for every bats test
+    - common.bash : common lib for every test
     - <name> : a test for .bin/<name> executable
     - <name>/ : a directory containing a more complicated test for .bin/<name>
                 (ex: such, that needs input and output file samples to test on)

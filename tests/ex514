@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source tests/common_general.bash
+source tests/common.bash
 
 EXE="ex514"
 
@@ -8,52 +8,52 @@ tests=(
   1 # Basic reverse alphabetic sort
   $'alpha\nbravo\ncharlie\n'
   $'charlie\nbravo\nalpha\n'
-  "$EXE -r"
+  0 "$EXE -r"
 
   2 # Normal vs reverse comparison
   $'charlie\nbravo\nalpha\n'
   $'alpha\nbravo\ncharlie\n'
-  "$EXE"
+  0 "$EXE"
 
   3 # Reverse numeric sort with negatives and decimals
   $'5\n-10.5\n2.3\n100\n'
   $'100\n5\n2.3\n-10.5\n'
-  "$EXE -r -n"
+  0 "$EXE -r -n"
 
   4 # Combined flags different order
   $'5\n-10\n2\n'
   $'5\n2\n-10\n'
-  "$EXE -nr"
+  0 "$EXE -nr"
 
   5 # Identical lines and whitespace
   $'same\nsame\n  \nsame\n'
   $'same\nsame\nsame\n  \n'
-  "$EXE -r"
+  0 "$EXE -r"
 
   6 # Single line edge case
   $'oneline\n'
   $'oneline\n'
-  "$EXE -r"
+  0 "$EXE -r"
 
   7 # Empty lines positioning
   $'c\n\na\nb\n'
   $'c\nb\na\n\n'
-  "$EXE -r"
+  0 "$EXE -r"
 
   8 # Case sensitivity test
   $'Apple\napple\nBanana\n'
   $'apple\nBanana\nApple\n'
-  "$EXE -r"
+  0 "$EXE -r"
 
   9 # Numeric with non-numeric fallback
   $'10\nabc\n2\n'
   $'10\n2\nabc\n'
-  "$EXE -nr"
+  0 "$EXE -nr"
 
   10 # Large numeric range
   $'1\n1000\n50\n'
   $'1000\n50\n1\n'
-  "$EXE -rn"
+  0 "$EXE -rn"
 )
 
 run_tests "${tests[@]}"

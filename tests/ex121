@@ -1,69 +1,59 @@
-#!/bin/env bats
+#!/bin/bash
 
-setup() {
-  bats_load_library bats-file
-  bats_load_library bats-assert
-  bats_load_library bats-support
-}
+source tests/common.bash
 
-# Basic entab functionality tests
+EXE="ex121"
 
-@test "1. Seven spaces to next tab stop: ex121 <<< 'a       b'" {
-    run ex121 <<< 'a       b'
-    assert_success
-    assert_output $'a\tb'
-}
+tests=(
+  1 # Seven spaces to next tab stop
+  $'a       b\n'
+  $'a\tb\n'
+  0 "$EXE"
 
-@test "2. Leading eight spaces: ex121 <<< '        hello'" {
-    run ex121 <<< '        hello'
-    assert_success
-    assert_output $'\thello'
-}
+  2 # Leading eight spaces
+  $'        hello\n'
+  $'\thello\n'
+  0 "$EXE"
 
-@test "3. Sixteen spaces to two tabs: ex121 <<< '                b'" {
-    run ex121 <<< '                b'
-    assert_success
-    assert_output $'\t\tb'
-}
+  3 # Sixteen spaces to two tabs
+  $'                b\n'
+  $'\t\tb\n'
+  0 "$EXE"
 
-@test "4. Partial spaces preserved: ex121 <<< 'a   b'" {
-    run ex121 <<< 'a   b'
-    assert_success
-    assert_output "a   b"
-}
+  4 # Partial spaces preserved
+  $'a   b\n'
+  $'a   b\n'
+  0 "$EXE"
 
-@test "5. Six spaces to next tab stop: ex121 <<< 'ab      c'" {
-    run ex121 <<< 'ab      c'
-    assert_success
-    assert_output $'ab\tc'
-}
+  5 # Six spaces to next tab stop
+  $'ab      c\n'
+  $'ab\tc\n'
+  0 "$EXE"
 
-@test "6. No spaces present: ex121 <<< 'hello world'" {
-    run ex121 <<< 'hello world'
-    assert_success
-    assert_output "hello world"
-}
+  6 # No spaces present
+  $'hello world\n'
+  $'hello world\n'
+  0 "$EXE"
 
-@test "7. Preserve existing tabs: ex121 <<< 'a\tb'" {
-    run ex121 <<< $'a\tb'
-    assert_success
-    assert_output $'a\tb'
-}
+  7 # Preserve existing tabs
+  $'a\tb\n'
+  $'a\tb\n'
+  0 "$EXE"
 
-@test "8. Multiple tab stops: ex121 <<< 'a       b      c'" {
-    run ex121 <<< 'a       b       c'
-    assert_success
-    assert_output $'a\tb\tc'
-}
+  8 # Multiple tab stops
+  $'a       b       c\n'
+  $'a\tb\tc\n'
+  0 "$EXE"
 
-@test "9. Mixed tabs and spaces: ex121 <<< 'a\tb       c'" {
-    run ex121 <<< $'a\tb       c'
-    assert_success
-    assert_output $'a\tb\tc'
-}
+  9 # Mixed tabs and spaces
+  $'a\tb       c\n'
+  $'a\tb\tc\n'
+  0 "$EXE"
 
-@test "10. Single space preserved: ex121 <<< 'a b'" {
-    run ex121 <<< 'a b'
-    assert_success
-    assert_output "a b"
-}
+  10 # Single space preserved
+  $'a b\n'
+  $'a b\n'
+  0 "$EXE"
+)
+
+run_tests "${tests[@]}"

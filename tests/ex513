@@ -1,69 +1,59 @@
-#!/bin/env bats
+#!/bin/bash
 
-setup() {
-  bats_load_library bats-file
-  bats_load_library bats-assert
-  bats_load_library bats-support
-}
+source tests/common.bash
 
-# Tests for #5-13 tail program
+EXE="ex513"
 
-@test "1. Default tail (10 lines): ex513 <<< 'line1\\\\nline2\\\\nline3\\\\nline4\\\\nline5\\\\nline6\\\\nline7\\\\nline8\\\\nline9\\\\nline10\\\\nline11\\\\nline12'" {
-    run ex513 <<< $'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12'
-    assert_success
-    assert_output $'line3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12'
-}
+tests=(
+  1 # Default tail (10 lines)
+  $'line1\nline2\nline3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12\n'
+  $'line3\nline4\nline5\nline6\nline7\nline8\nline9\nline10\nline11\nline12\n'
+  0 "$EXE"
 
-@test "2. Tail last 3 lines: ex513 -3 <<< 'line1\\\\nline2\\\\nline3\\\\nline4\\\\nline5'" {
-    run ex513 -3 <<< $'line1\nline2\nline3\nline4\nline5'
-    assert_success
-    assert_output $'line3\nline4\nline5'
-}
+  2 # Tail last 3 lines
+  $'line1\nline2\nline3\nline4\nline5\n'
+  $'line3\nline4\nline5\n'
+  0 "$EXE -3"
 
-@test "3. Tail last 1 line: ex513 -1 <<< 'line1\\\\nline2\\\\nline3'" {
-    run ex513 -1 <<< $'line1\nline2\nline3'
-    assert_success
-    assert_output "line3"
-}
+  3 # Tail last 1 line
+  $'line1\nline2\nline3\n'
+  $'line3\n'
+  0 "$EXE -1"
 
-@test "4. More lines requested than available: ex513 -10 <<< 'line1\\\\nline2\\\\nline3'" {
-    run ex513 -10 <<< $'line1\nline2\nline3'
-    assert_success
-    assert_output $'line1\nline2\nline3'
-}
+  4 # More lines requested than available
+  $'line1\nline2\nline3\n'
+  $'line1\nline2\nline3\n'
+  0 "$EXE -10"
 
-@test "5. Empty input: ex513 -5 <<< ''" {
-    run ex513 -5 <<< ''
-    assert_success
-    assert_output ""
-}
+  5 # Empty input
+  $''
+  $''
+  0 "$EXE -5"
 
-@test "6. Single line input: ex513 -3 <<< 'oneline'" {
-    run ex513 -3 <<< 'oneline'
-    assert_success
-    assert_output "oneline"
-}
+  6 # Single line input
+  $'oneline\n'
+  $'oneline\n'
+  0 "$EXE -3"
 
-@test "7. Zero lines requested: ex513 -0 <<< 'line1\\\\nline2\\\\nline3'" {
-    run ex513 -0 <<< $'line1\nline2\nline3'
-    assert_success
-    assert_output ""
-}
+  7 # Zero lines requested
+  $'line1\nline2\nline3\n'
+  $''
+  0 "$EXE -0"
 
-@test "8. Large input default: ex513 <<< 'a\\\\nb\\\\nc\\\\nd\\\\ne\\\\nf\\\\ng\\\\nh\\\\ni\\\\nj\\\\nk\\\\nl\\\\nm\\\\nn\\\\no'" {
-    run ex513 <<< $'a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no'
-    assert_success
-    assert_output $'f\ng\nh\ni\nj\nk\nl\nm\nn\no'
-}
+  8 # Large input default
+  $'a\nb\nc\nd\ne\nf\ng\nh\ni\nj\nk\nl\nm\nn\no\n'
+  $'f\ng\nh\ni\nj\nk\nl\nm\nn\no\n'
+  0 "$EXE"
 
-@test "9. Tail last 5 lines: ex513 -5 <<< 'a\\\\nb\\\\nc\\\\nd\\\\ne\\\\nf\\\\ng\\\\nh'" {
-    run ex513 -5 <<< $'a\nb\nc\nd\ne\nf\ng\nh'
-    assert_success
-    assert_output $'d\ne\nf\ng\nh'
-}
+  9 # Tail last 5 lines
+  $'a\nb\nc\nd\ne\nf\ng\nh\n'
+  $'d\ne\nf\ng\nh\n'
+  0 "$EXE -5"
 
-@test "10. Exactly n lines available: ex513 -3 <<< 'line1\\\\nline2\\\\nline3'" {
-    run ex513 -3 <<< $'line1\nline2\nline3'
-    assert_success
-    assert_output $'line1\nline2\nline3'
-}
+  10 # Exactly n lines available
+  $'line1\nline2\nline3\n'
+  $'line1\nline2\nline3\n'
+  0 "$EXE -3"
+)
+
+run_tests "${tests[@]}"

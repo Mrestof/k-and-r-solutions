@@ -1,69 +1,59 @@
-#!/bin/env bats
+#!/bin/bash
 
-setup() {
-  bats_load_library bats-file
-  bats_load_library bats-assert
-  bats_load_library bats-support
-}
+source tests/common.bash
 
-# Tests for #5-12 with -m +n shorthand
+EXE="ex512"
 
-@test "1. Detab shorthand -1 +4: ex512 detab -1 +4 <<< '\thello'" {
-    run ex512 detab -1 +4 <<< $'\thello'
-    assert_success
-    assert_output " hello"
-}
+tests=(
+  1 # Detab shorthand -1 +4
+  $'\thello\n'
+  $' hello\n'
+  0 "$EXE detab -1 +4"
 
-@test "2. Entab shorthand -1 +4: ex512 entab -1 +4 <<< ' hello'" {
-    run ex512 entab -1 +4 <<< ' hello'
-    assert_success
-    assert_output $'\thello'
-}
+  2 # Entab shorthand -1 +4
+  $' hello\n'
+  $'\thello\n'
+  0 "$EXE entab -1 +4"
 
-@test "3. Detab shorthand -5 +8: ex512 detab -5 +8 <<< 'a\tb'" {
-    run ex512 detab -5 +8 <<< $'a\tb'
-    assert_success
-    assert_output "a    b"
-}
+  3 # Detab shorthand -5 +8
+  $'a\tb\n'
+  $'a    b\n'
+  0 "$EXE detab -5 +8"
 
-@test "4. Entab shorthand -5 +8: ex512 entab -5 +8 <<< 'a    b'" {
-    run ex512 entab -5 +8 <<< 'a    b'
-    assert_success
-    assert_output $'a\tb'
-}
+  4 # Entab shorthand -5 +8
+  $'a    b\n'
+  $'a\tb\n'
+  0 "$EXE entab -5 +8"
 
-@test "5. Detab multiple tabs with shorthand: ex512 detab -1 +4 <<< '\t\thello'" {
-    run ex512 detab -1 +4 <<< $'\t\thello'
-    assert_success
-    assert_output "     hello"
-}
+  5 # Detab multiple tabs with shorthand
+  $'\t\thello\n'
+  $'     hello\n'
+  0 "$EXE detab -1 +4"
 
-@test "6. Entab multiple tab stops: ex512 entab -1 +4 <<< '     hello'" {
-    run ex512 entab -1 +4 <<< '     hello'
-    assert_success
-    assert_output $'\t\thello'
-}
+  6 # Entab multiple tab stops
+  $'     hello\n'
+  $'\t\thello\n'
+  0 "$EXE entab -1 +4"
 
-@test "7. Detab shorthand -3 +6: ex512 detab -3 +6 <<< 'ab\tc\td'" {
-    run ex512 detab -3 +6 <<< $'ab\tc\td'
-    assert_success
-    assert_output "ab c     d"
-}
+  7 # Detab shorthand -3 +6
+  $'ab\tc\td\n'
+  $'ab c     d\n'
+  0 "$EXE detab -3 +6"
 
-@test "8. Entab shorthand -3 +6: ex512 entab -3 +6 <<< 'ab c     d'" {
-    run ex512 entab -3 +6 <<< 'ab c     d'
-    assert_success
-    assert_output $'ab\tc\td'
-}
+  8 # Entab shorthand -3 +6
+  $'ab c     d\n'
+  $'ab\tc\td\n'
+  0 "$EXE entab -3 +6"
 
-@test "9. Detab shorthand -8 +4: ex512 detab -8 +4 <<< 'abcdefg\th'" {
-    run ex512 detab -8 +4 <<< $'abcdefg\th'
-    assert_success
-    assert_output "abcdefg h"
-}
+  9 # Detab shorthand -8 +4
+  $'abcdefg\th\n'
+  $'abcdefg h\n'
+  0 "$EXE detab -8 +4"
 
-@test "10. Default behavior when no shorthand: ex512 entab <<< 'a       b'" {
-    run ex512 entab <<< 'a       b'
-    assert_success
-    assert_output $'a\tb'
-}
+  10 # Default behavior when no shorthand
+  $'a       b\n'
+  $'a\tb\n'
+  0 "$EXE entab"
+)
+
+run_tests "${tests[@]}"
