@@ -14,7 +14,7 @@ run_test() {
   local exit_code="${actual##*x}"
   actual=${actual%x*}
 
- if [[
+  if [[
    ( $exit_code -eq 0 && "$actual" == "$expected" )
    || ( $exit_code -ne 0 && $exit_code -eq $expected_exit )
   ]]; then
