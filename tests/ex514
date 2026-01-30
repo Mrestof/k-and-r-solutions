@@ -1,101 +1,59 @@
 #!/bin/bash
 
-BINDIR='.bin'
-PATH="$BINDIR:$PATH"
+source tests/common_general.bash
 
-PASS=0
-FAIL=0
 EXE="ex514"
 
-run_test() {
-  local input="$1"
-  local expected="$2"
-  shift 2
-  local cmd=("$@")
+tests=(
+  1 # Basic reverse alphabetic sort
+  $'alpha\nbravo\ncharlie\n'
+  $'charlie\nbravo\nalpha\n'
+  "$EXE -r"
 
-  local pass=false
-
-  local actual=$(echo -n "$input" | "${cmd[@]}" 2>&1; echo x); actual=${actual%x}
-  local exit_code=$?
-
-  if [[ $exit_code -eq 0 && "$actual" == "$expected" ]]; then
-    pass=true
-    ((PASS++))
-  else
-    echo -n "not "
-    ((FAIL++))
-  fi
-
-  echo "ok - "${cmd[@]}" \t input:'$(echo -n "$input" | tr '\n' '|')'"
-
-  if [ "$pass" = false ]; then
-    echo "#   Expected: $(echo -en "$expected" | tr '\n' '|')"
-    echo "#   Actual:   $(echo -en "$actual" | tr '\n' '|')"
-    echo "#   Exit code: $exit_code"
-  fi
-}
-
-# Test 1: Basic reverse alphabetic sort
-run_test \
-  $'alpha\nbravo\ncharlie\n' \
-  $'charlie\nbravo\nalpha\n' \
-  "$EXE" -r
-
-# Test 2: Normal vs reverse comparison (verify -r actually reverses)
-run_test \
-  $'charlie\nbravo\nalpha\n' \
-  $'alpha\nbravo\ncharlie\n' \
+  2 # Normal vs reverse comparison
+  $'charlie\nbravo\nalpha\n'
+  $'alpha\nbravo\ncharlie\n'
   "$EXE"
 
-# Test 3: Reverse numeric sort with negatives and decimals
-run_test \
-  $'5\n-10.5\n2.3\n100\n' \
-  $'100\n5\n2.3\n-10.5\n' \
-  "$EXE" -r -n
+  3 # Reverse numeric sort with negatives and decimals
+  $'5\n-10.5\n2.3\n100\n'
+  $'100\n5\n2.3\n-10.5\n'
+  "$EXE -r -n"
 
-# Test 4: Combined flags different order
-run_test \
-  $'5\n-10\n2\n' \
-  $'5\n2\n-10\n' \
-  "$EXE" -nr
+  4 # Combined flags different order
+  $'5\n-10\n2\n'
+  $'5\n2\n-10\n'
+  "$EXE -nr"
 
-# Test 5: Identical lines and whitespace
-run_test \
-  $'same\nsame\n  \nsame\n' \
-  $'same\nsame\nsame\n  \n' \
-  "$EXE" -r
+  5 # Identical lines and whitespace
+  $'same\nsame\n  \nsame\n'
+  $'same\nsame\nsame\n  \n'
+  "$EXE -r"
 
-# Test 6: Single line edge case
-run_test \
-  $'oneline\n' \
-  $'oneline\n' \
-  "$EXE" -r
+  6 # Single line edge case
+  $'oneline\n'
+  $'oneline\n'
+  "$EXE -r"
 
-# Test 7: Empty lines positioning
-run_test \
-  $'c\n\na\nb\n' \
-  $'c\nb\na\n\n' \
-  "$EXE" -r
+  7 # Empty lines positioning
+  $'c\n\na\nb\n'
+  $'c\nb\na\n\n'
+  "$EXE -r"
 
-# Test 8: Case sensitivity test
-run_test \
-  $'Apple\napple\nBanana\n' \
-  $'apple\nBanana\nApple\n' \
-  "$EXE" -r
+  8 # Case sensitivity test
+  $'Apple\napple\nBanana\n'
+  $'apple\nBanana\nApple\n'
+  "$EXE -r"
 
-# Test 9: Numeric with non-numeric fallback
-run_test \
-  $'10\nabc\n2\n' \
-  $'10\n2\nabc\n' \
-  "$EXE" -nr
+  9 # Numeric with non-numeric fallback
+  $'10\nabc\n2\n'
+  $'10\n2\nabc\n'
+  "$EXE -nr"
 
-# Test 10: Large numeric range
-run_test \
-  $'1\n1000\n50\n' \
-  $'1000\n50\n1\n' \
-  "$EXE" -rn
+  10 # Large numeric range
+  $'1\n1000\n50\n'
+  $'1000\n50\n1\n'
+  "$EXE -rn"
+)
 
-if [[ $FAIL -gt 0 ]]; then
-  echo -n 'not '
-fi
-echo "ok:pass=$PASS,fail=$FAIL"
+run_tests "${tests[@]}"
