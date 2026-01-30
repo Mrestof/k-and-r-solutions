@@ -1,6 +1,10 @@
 BINDIR='.bin'
 PATH="$BINDIR:$PATH"
 
+# NOTE: pass those as namerefs in case of issues due to them being global
+_PASS=0
+_FAIL=0
+
 run_test() {
   local test_num="$1"
   local input="$2"
@@ -19,10 +23,10 @@ run_test() {
    || ( $exit_code -ne 0 && $exit_code -eq $expected_exit )
   ]]; then
     pass=true
-    ((PASS++))
+    ((_PASS++))
   else
     echo -n "not "
-    ((FAIL++))
+    ((_FAIL++))
   fi
 
   echo "ok $test_num - "${cmd[@]}" \t input:'$(echo -n "$input" | tr '\n' '|')'"
@@ -38,9 +42,6 @@ run_test() {
 run_tests() {
   local tests=("$@")
 
-  local pass=0
-  local fail=0
-
   for ((i=0; i<${#tests[@]}; i+=5)); do
     local test_num="${tests[$i]}"
     local input="${tests[$((i+1))]}"
@@ -54,5 +55,5 @@ run_tests() {
   if [[ $fail -gt 0 ]]; then
     echo -n 'not '
   fi
-  echo "ok:pass=$pass,fail=$fail"
+  echo "ok:pass=$_PASS,fail=$_FAIL"
 }
