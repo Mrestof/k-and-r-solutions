@@ -1,0 +1,99 @@
+#!/bin/bash
+
+source tests/common.bash
+
+EXE="ex515"
+
+tests=(
+  1 # Basic case-insensitive sort with -f
+  $'Apple\napple\nBanana\nbanana\n'
+  $'Apple\napple\nBanana\nbanana\n'
+  0 "$EXE -f"
+
+  2 # Mixed case without -f (case sensitive)
+  $'Apple\napple\nBanana\nbanana\n'
+  $'Apple\nBanana\napple\nbanana\n'
+  0 "$EXE"
+
+  3 # Case-insensitive reverse sort
+  $'Apple\napple\nBanana\nbanana\n'
+  $'banana\nBanana\napple\nApple\n'
+  0 "$EXE -rf"
+
+  4 # Case-insensitive numeric sort
+  $'Apple\n10\napple\n2\nBanana\n'
+  $'2\n10\nApple\napple\nBanana\n'
+  0 "$EXE -fn"
+
+  5 # All flags together: reverse case-insensitive numeric
+  $'Apple\n10\napple\n2\nBanana\n'
+  $'Banana\napple\nApple\n10\n2\n'
+  0 "$EXE -rfn"
+
+  6 # Different flag order (should work the same)
+  $'Apple\napple\nBanana\nbanana\n'
+  $'Apple\napple\nBanana\nbanana\n'
+  0 "$EXE -nf"
+
+  7 # Case differences at word boundaries
+  $'test\nTEST\nTest\ntEsT\n'
+  $'test\nTEST\nTest\ntEsT\n'
+  0 "$EXE -f"
+
+  8 # Case-insensitive with special characters
+  $'Apple!\napple?\nApple.\n'
+  $'Apple!\nApple.\napple?\n'
+  0 "$EXE -f"
+
+  9 # Case-insensitive with numbers in strings
+  $'Test2\ntest1\nTEST10\n'
+  $'test1\nTest2\nTEST10\n'
+  0 "$EXE -f"
+
+  10 # Case-insensitive numeric with mixed case numbers
+  $'Test\n2a\n10A\n1B\n'
+  $'1B\n2a\n10A\nTest\n'
+  0 "$EXE -fn"
+
+  11 # Empty lines with case-insensitive
+  $'Apple\n\napple\nBanana\n'
+  $'\nApple\napple\nBanana\n'
+  0 "$EXE -f"
+
+  12 # Single character case differences
+  $'a\nA\nb\nB\n'
+  $'a\nA\nb\nB\n'
+  0 "$EXE -f"
+
+  13 # Case-insensitive with whitespace
+  $'Apple \napple\n Apple\n'
+  $' Apple\nApple \napple\n'
+  0 "$EXE -f"
+
+  14 # Long strings with case differences
+  $'verylongstring\nVERYLONGSTRING\nVeryLongString\n'
+  $'verylongstring\nVERYLONGSTRING\nVeryLongString\n'
+  0 "$EXE -f"
+
+  15 # Case-insensitive with identical content
+  $'same\nsame\nSAME\nSame\n'
+  $'same\nsame\nSAME\nSame\n'
+  0 "$EXE -f"
+
+  16 # Invalid flag combination
+  $'test\n'
+  $''
+  1 "$EXE -fx"
+
+  17 # Case-insensitive single line
+  $'OneLine\n'
+  $'OneLine\n'
+  0 "$EXE -f"
+
+  18 # Case-insensitive empty input
+  $''
+  $''
+  0 "$EXE -f"
+)
+
+run_tests "${tests[@]}"
