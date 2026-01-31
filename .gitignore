@@ -6,6 +6,7 @@
 /fileoutput.txt
 /.bin
 /src/*/main
+/tests/__pycache__
 
 # environment dependent
 /.gdb_history

@@ -1,0 +1,11 @@
+[tool.pyright]
+extraPaths = ['.']
+
+[tool.ruff]
+line-length = 80
+select = [
+  'ALL',
+]
+
+[tool.ruff.lint.flake8-quotes]
+inline-quotes = 'single'

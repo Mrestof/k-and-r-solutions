@@ -6,7 +6,7 @@ while true; do
   {
     echo "$(ls fileinput.txt run.sh)";
     echo "$(find src -type f -name '*.[ch]')";
-    echo "$(find tests -type f)";
+    echo "$(find tests -type f ! -name '*.pyc')";
   } | entr -dr sh -c "$run_cmd_fmt"
   sleep 1
 done
