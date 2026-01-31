@@ -34,8 +34,7 @@ run_test() {
   if [ "$pass" = false ]; then
     echo "#   Expected: $(echo -en "$expected" | tr '\n' '|')"
     echo "#   Actual:   $(echo -en "$actual" | tr '\n' '|')"
-    echo "#   Expected exit code: $expected_exit"
-    echo "#   Actual exit code: $exit_code"
+    echo "#   Exit code: $exit_code;$expected_exit (actual;expected)"
   fi
 }
 
