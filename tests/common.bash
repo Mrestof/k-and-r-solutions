@@ -32,8 +32,8 @@ run_test() {
   echo "ok $test_num - "${cmd[@]}" \t input:'$(echo -n "$input" | tr '\n' '|')'"
 
   if [ "$pass" = false ]; then
-    echo "#   Expected: $(echo -en "$expected" | tr '\n' '|')"
-    echo "#   Actual:   $(echo -en "$actual" | tr '\n' '|')"
+    echo "#   Expected: '$(echo -en "$expected" | tr '\n' '|')'"
+    echo "#   Actual:   '$(echo -en "$actual" | tr '\n' '|')'"
     echo "#   Exit code: $exit_code;$expected_exit (actual;expected)"
   fi
 }
