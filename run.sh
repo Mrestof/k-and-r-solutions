@@ -1,5 +1,7 @@
 #!/bin/env bash
 
+#TODO: allow extensions for test scripts in tests folder
+
 FIN=fileinput.txt
 FOUT=fileoutput.txt
 
