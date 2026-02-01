@@ -1,8 +1,11 @@
+"""Minimal test framework."""
+# ruff: noqa: T201
+
 import os
-from typing import Callable, Concatenate, NamedTuple
 import shlex
 import subprocess
-
+from collections.abc import Callable
+from typing import Concatenate, LiteralString, NamedTuple
 
 BINDIR='.bin'
 
@@ -10,19 +13,26 @@ type TestNum = int
 type TestInp = str
 type TestOut[**P] = str | Callable[Concatenate[str, P], bool]
 type TestExt = int
-type TestCmd = str
+type TestCmd = LiteralString
 
 class Test(NamedTuple):
+    """Represent a single test."""
+
     no: TestNum
     input: TestInp
     exp_output: TestOut
     exp_exit_code: TestExt
     cmd: TestCmd
+
 type Tests = tuple[Test, ...]
 
 
 def _verify_output(actual: str, expected: TestOut) -> bool:
-    """Either simply compare two strings, or feed the `actual` to `expected` verification function supplied by the test file."""
+    """Verify the `actual` output with `expected` object.
+
+    Either simply compare two strings, or feed the `actual` to
+    `expected` verification function supplied by the test file.
+    """
     return False
 
 
@@ -35,12 +45,13 @@ def _fmt(inp: str) -> str:
 
 def _run_test(test: Test, env: dict[str, str]) -> bool:
     tpass = False
-    result = subprocess.run(
+    result = subprocess.run(  # noqa: S603 - safe, we only allow LiteralString
         shlex.split(test.cmd),
         env=env,
         capture_output=True,
         input=test.input,
         text=True,
+        check=False,
     )
 
     if result.returncode != 0:
@@ -65,6 +76,7 @@ def _run_test(test: Test, env: dict[str, str]) -> bool:
 
 
 def run_tests(tests: Tests) -> None:
+    """Run each test in `tests`, print diagnostics in (kina) TAP format."""
     tpass = tfail = 0
 
     env = os.environ.copy()

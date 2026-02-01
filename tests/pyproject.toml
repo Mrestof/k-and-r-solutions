@@ -3,8 +3,12 @@ extraPaths = ['.']
 
 [tool.ruff]
 line-length = 80
-select = [
+lint.select = [
   'ALL',
+]
+lint.ignore = [
+  'D203',
+  'D213',
 ]
 
 [tool.ruff.lint.flake8-quotes]
