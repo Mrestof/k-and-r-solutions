@@ -5,13 +5,13 @@ import os
 import shlex
 import subprocess
 from collections.abc import Callable
-from typing import Concatenate, LiteralString, NamedTuple
+from typing import LiteralString, NamedTuple
 
 BINDIR='.bin'
 
 type TestNum = int
 type TestInp = str
-type TestOut[**P] = str | Callable[Concatenate[str, P], bool]
+type TestOut = str | Callable[[str], bool]
 type TestExt = int
 type TestCmd = LiteralString
 
@@ -33,7 +33,11 @@ def _verify_output(actual: str, expected: TestOut) -> bool:
     Either simply compare two strings, or feed the `actual` to
     `expected` verification function supplied by the test file.
     """
-    return False
+    print(expected)
+    if isinstance(expected, str):
+        print('hit')
+        return actual == expected
+    return actual == expected(actual)
 
 
 def _fmt(inp: str) -> str:
@@ -54,7 +58,7 @@ def _run_test(test: Test, env: dict[str, str]) -> bool:
         check=False,
     )
 
-    if result.returncode != 0:
+    if test.exp_exit_code != 0:
         tpass = result.returncode == test.exp_exit_code
     else:
         tpass = _verify_output(result.stdout, test.exp_output)
