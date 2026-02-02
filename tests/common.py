@@ -33,9 +33,7 @@ def _verify_output(actual: str, expected: TestOut) -> bool:
     Either simply compare two strings, or feed the `actual` to
     `expected` verification function supplied by the test file.
     """
-    print(expected)
     if isinstance(expected, str):
-        print('hit')
         return actual == expected
     return actual == expected(actual)
 
