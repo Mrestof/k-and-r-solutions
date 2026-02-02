@@ -58,6 +58,7 @@ Files structure:
     - <name> : a test for .bin/<name> executable
     - <name>/ : a directory containing a more complicated test for .bin/<name>
                 (ex: such, that needs input and output file samples to test on)
+                (DEPRECATED, maybe will add this back in the future)
       - main : an entry point to the test in the directory
   - .bin/ : directory with all compiled executables
     - lib/: directory containing libs' object and archive files

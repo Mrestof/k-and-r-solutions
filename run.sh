@@ -1,7 +1,5 @@
 #!/bin/env bash
 
-#TODO: allow extensions for test scripts in tests folder
-
 FIN=fileinput.txt
 FOUT=fileoutput.txt
 
@@ -43,10 +41,9 @@ if [[ "${bin_name##*/}" == *'.'* ]]; then
   bin_name="${bin_name%.*}"
 fi
 
-if [[ -d "tests/${bin_name##*/}" ]]; then
-  test_name="tests/${bin_name##*/}/main"
-elif [[ -f "tests/${bin_name##*/}" ]]; then
-  test_name="tests/${bin_name##*/}"
+test_path=(tests/${bin_name##*/}*)
+if [[ -f $test_path ]]; then
+  test_name="$test_path"
 fi
 
 compile_standalone() {
