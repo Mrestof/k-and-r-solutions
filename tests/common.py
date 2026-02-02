@@ -45,8 +45,12 @@ def _fmt(inp: str) -> str:
     )
 
 
-def _run_test(test: Test, env: dict[str, str]) -> bool:
+def run_test(test: Test) -> bool:
+    """Run `test`, print diagnostics in (kind of) a TAP format."""
     tpass = False
+
+    env = os.environ.copy()
+    env['PATH'] = f"{BINDIR}:{env['PATH']}"
     result = subprocess.run(  # noqa: S603 - safe, we only allow LiteralString
         shlex.split(test.cmd),
         env=env,
@@ -76,14 +80,11 @@ def _run_test(test: Test, env: dict[str, str]) -> bool:
 
 
 def run_tests(tests: Tests) -> None:
-    """Run each test in `tests`, print diagnostics in (kina) TAP format."""
+    """Run each test in `tests`, print diagnostics in (kind of) a TAP format."""
     tpass = tfail = 0
 
-    env = os.environ.copy()
-    env['PATH'] = f"{BINDIR}:{env['PATH']}"
-
     for test in tests:
-        if _run_test(test, env):
+        if run_test(test):
             tpass += 1
         else:
             tfail += 1
