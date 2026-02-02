@@ -62,15 +62,13 @@ def _run_test(test: Test, env: dict[str, str]) -> bool:
         tpass = _verify_output(result.stdout, test.exp_output)
 
     not_pre = 'not ' if not tpass else ''
-    input_fmt = test.input.replace('\n', '|')
-    print(f"{not_pre}ok {test.no} - {test.cmd} \t input:'{input_fmt}'")
+    print(f'{not_pre}ok {test.no} - {test.cmd}')
+    print(f'#   inp:"{_fmt(test.input)}"')
+    print(f'#   out:"{_fmt(result.stdout)}"')
 
     if not tpass:
         if isinstance(test.exp_output, str):
             print(f'#   Expected: {_fmt(test.exp_output)}')
-            print(f'#   Actual: {_fmt(result.stdout)}')
-        else:
-            print(f'#   Output: {_fmt(result.stdout)}')
         codes = f'{result.returncode};{test.exp_exit_code}'
         print(f'#   Exit code: {codes} (actual;expected)')
 
