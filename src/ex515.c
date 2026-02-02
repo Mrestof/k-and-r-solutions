@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #define MAXLINES 5000   /* max #lines to be sorted */
 char *lineptr[MAXLINES]; /* pointers to text lines */
@@ -13,6 +14,7 @@ void kr_qsort(
   int (*comp)(void *, void *)
 );
 int numcmp(const char *, const char *);
+int strcmp_ci(const char *, const char *); /* case insensitive strcmp */
 
 /* sort input lines */
 int main(int argc, char *argv[])
@@ -20,6 +22,7 @@ int main(int argc, char *argv[])
   int nlines;    /* number of input lines read */
   int numeric = 0;   /* 1 if numeric sort */
   int reverse = 1;   /* -1 if reverse sort */
+  int ignore_case = 0; /* 1 if ignore case */
 
   while (--argc > 0 && **++argv == '-')
     while (*++*argv)
@@ -30,15 +33,23 @@ int main(int argc, char *argv[])
       case 'r':
         reverse = -1;
         break;
+      case 'f':
+        ignore_case = 1;
+        break;
       default:
         return 2;
       }
 
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    kr_qsort(
-      (void**) lineptr, 0, nlines-1, reverse,
-      (int (*)(void*,void*))(numeric ? numcmp : strcmp)
-    );
+    int (*funcmp)(void*,void*);
+    if (numeric)
+      funcmp = (int (*)(void*,void*))numcmp;
+    else
+      if (ignore_case)
+        funcmp = (int (*)(void*,void*))strcmp_ci;
+      else
+        funcmp = (int (*)(void*,void*))strcmp;
+    kr_qsort((void**) lineptr, 0, nlines-1, reverse, funcmp);
     writelines(lineptr, nlines);
     return 0;
   } else {
@@ -80,6 +91,17 @@ int numcmp(const char *s1, const char *s2)
     return 1;
   else
     return 0;
+}
+
+int strcmp_ci(const char *s1, const char *s2) {
+  char c1, c2;
+  for (int i = 0; s1[i] || s2[i]; i++) {
+    c1 = tolower(s1[i]);
+    c2 = tolower(s2[i]);
+    if (c1 != c2)
+      return c1 - c2;
+  }
+  return 0;
 }
 
 void arr_swap(void *v[], int i, int j)
