@@ -35,7 +35,7 @@ def _verify_output(actual: str, expected: TestOut) -> bool:
     """
     if isinstance(expected, str):
         return actual == expected
-    return actual == expected(actual)
+    return expected(actual)
 
 
 def _fmt(inp: str) -> str:
