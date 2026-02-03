@@ -60,10 +60,9 @@ def run_test(test: Test) -> bool:
         check=False,
     )
 
-    if test.exp_exit_code != 0:
-        tpass = result.returncode == test.exp_exit_code
-    else:
-        tpass = _verify_output(result.stdout, test.exp_output)
+    tpass = result.returncode == test.exp_exit_code
+    if test.exp_exit_code == 0:
+        tpass = tpass and _verify_output(result.stdout, test.exp_output)
 
     not_pre = 'not ' if not tpass else ''
     print(f'{not_pre}ok {test.no} - {test.cmd}')
