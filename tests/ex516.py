@@ -44,10 +44,14 @@ def _is_sorted(
     ignore_case: bool = False,
     directory_order: bool = False,
 ) -> bool:
-    del directory_order  # NOTE: not implemented
     cmp_fun = _cmp_num if numeric else _cmp_lex
     reverse_mul = -1 if reverse else 1
     listlines = lines.splitlines()
+    if directory_order:
+        listlines = [
+            ''.join(c for c in line if c.isalnum() or c.isspace())
+            for line in listlines
+        ]
     if ignore_case:
         listlines = map(str.lower, listlines)
     for left, right in pairwise(listlines):
