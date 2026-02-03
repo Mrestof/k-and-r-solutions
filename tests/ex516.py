@@ -1,13 +1,13 @@
 #!/bin/env python3
 
-"""Test for 5-15 task."""
+"""Test for 5-16 task."""
 
 from functools import partial
 from itertools import pairwise
 
 from common import Test, Tests, run_tests
 
-EXE = 'ex515'
+EXE = 'ex516'
 
 
 def _float(s: str) -> float:
@@ -42,7 +42,9 @@ def _is_sorted(
     numeric: bool = False,
     reverse: bool = False,
     ignore_case: bool = False,
+    directory_order: bool = False,
 ) -> bool:
+    del directory_order  # NOTE: not implemented
     cmp_fun = _cmp_num if numeric else _cmp_lex
     reverse_mul = -1 if reverse else 1
     listlines = lines.splitlines()
@@ -55,100 +57,95 @@ def _is_sorted(
 
 
 tests: Tests = (
-  Test(1, # Basic case-insensitive sort with -f
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(1, # Basic directory order sort with -d
+  'apple!\nbanana?\napple.\ntest123\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(2, # Mixed case without -f (case sensitive)
-  'Apple\napple\nBanana\nbanana\n',
-  'Apple\nBanana\napple\nbanana\n',
+  Test(2, # Directory order vs normal comparison
+  'file.txt\nfile!txt\nfile@txt\n',
+  'file!txt\nfile.txt\nfile@txt\n',
   0, f'{EXE}'),
 
-  Test(3, # Case-insensitive reverse sort
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, reverse=True, ignore_case=True),
-  0, f'{EXE} -rf'),
+  Test(3, # Directory order ignores special chars
+  'file.txt\nfile!txt\nfile@txt\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(4, # Case-insensitive numeric sort
-  'Apple\n10\napple\n2\nBanana\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -fn'),
+  Test(4, # Directory order with case folding
+  'Apple!\napple.\nBanana?\nbanana\n',
+  partial(_is_sorted, directory_order=True, ignore_case=True),
+  0, f'{EXE} -df'),
 
-  Test(5, # All flags together: reverse case-insensitive numeric
-  'Apple\n10\napple\n2\nBanana\n',
-  partial(_is_sorted, numeric=True, reverse=True, ignore_case=True),
-  0, f'{EXE} -rfn'),
+  Test(5, # Directory order with reverse
+  'test1\ntest!2\ntest 3\ntest@4\n',
+  partial(_is_sorted, directory_order=True, reverse=True),
+  0, f'{EXE} -dr'),
 
-  Test(6, # Different flag order (should work the same)
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -nf'),
+  Test(6, # Directory order with numeric
+  'file10\nfile2\nfile@5\nfile 1\n',
+  partial(_is_sorted, directory_order=True, numeric=True),
+  0, f'{EXE} -dn'),
 
-  Test(7, # Case differences at word boundaries
-  'test\nTEST\nTest\ntEsT\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(7, # All flags together: -dfr
+  'Test!\ntest.\nApple?\napple\n',
+  partial(_is_sorted, directory_order=True, ignore_case=True, reverse=True),
+  0, f'{EXE} -dfr'),
 
-  Test(8, # Case-insensitive with special characters
-  'Apple!\napple?\nApple.\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(8, # Directory order with punctuation heavy
+  'a!!!b\na@@@b\na   b\naAAA\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(9, # Case-insensitive with numbers in strings
-  'Test2\ntest1\nTEST10\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(9, # Directory order preserves spaces within comparison
+  'hello world\nhello\nhelloworld\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(10, # Case-insensitive numeric with mixed case numbers
-  'Test\n2a\n10A\n1B\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -fn'),
+  Test(10, # Directory order with numbers and letters only
+  'abc123\ntest456\nfile789\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(11, # Empty lines with case-insensitive
-  'Apple\n\napple\nBanana\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(11, # Directory order with mixed blanks
+  'a\tb\na b\na  b\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(12, # Single character case differences
-  'a\nA\nb\nB\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(12, # Directory order numeric with special chars
+  'file10!\nfile2@\nfile1#\n',
+  partial(_is_sorted, directory_order=True, numeric=True),
+  0, f'{EXE} -dn'),
 
-  Test(13, # Case-insensitive with whitespace
-  'Apple \napple\n Apple\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(13, # Directory order case-insensitive numeric
+  'Test10!\ntest2@\nTEST1#\n',
+  partial(_is_sorted, directory_order=True, ignore_case=True, numeric=True),
+  0, f'{EXE} -dfn'),
 
-  Test(14, # Long strings with case differences
-  'verylongstring\nVERYLONGSTRING\nVeryLongString\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(14, # Directory order with empty and special
+  '\ntest!\n\nfile.\n',
+  partial(_is_sorted, directory_order=True),
+  0, f'{EXE} -d'),
 
-  Test(15, # Case-insensitive with identical content
-  'same\nsame\nSAME\nSame\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+  Test(15, # Directory order single line
+  'oneline!\n',
+  'oneline!\n',
+  0, f'{EXE} -d'),
 
-  Test(16, # Case-insensitive numeric with floats
-  '-5.2\n8.9\n0.1garbage\napple2\nbanana3\n',
-  partial(_is_sorted, ignore_case=True, numeric=True),
-  0, f'{EXE} -fn'),
+  Test(16, # Directory order empty input
+  '',
+  '',
+  0, f'{EXE} -d'),
 
   Test(17, # Invalid flag combination
   'test\n',
   '',
-  2, f'{EXE} -fx'),
+  2, f'{EXE} -dx'),
 
-  Test(18, # Case-insensitive single line
-  'OneLine\n',
-  'OneLine\n',
-  0, f'{EXE} -f'),
-
-  Test(19, # Case-insensitive empty input
-  '',
-  '',
-  0, f'{EXE} -f'),
+  Test(18, # Directory order with all flag orderings
+  'Apple!\napple.\nBanana?\nbanana\n',
+  partial(_is_sorted, directory_order=True, ignore_case=True, reverse=True, numeric=True),
+  0, f'{EXE} -nfrd'),
 )
 
 run_tests(tests)
