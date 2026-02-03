@@ -11,9 +11,20 @@ BINDIR='.bin'
 
 type TestNum = int
 type TestInp = str
-type TestOut = str | Callable[[str], bool]
 type TestExt = int
 type TestCmd = LiteralString
+
+class TestOut(NamedTuple):
+    """Things that help you verify the test output.
+
+    Always have a `string` expected test output.
+    If `verifn` is None, the `string` is supposed to be used to verify the
+    program output. If `verifn` is not None, feed the program output to it to
+    verify it, this is useful for unstable tests.
+    """
+
+    string: str
+    verifn: None | Callable[[str], bool]
 
 class Test(NamedTuple):
     """Represent a single test."""
@@ -30,12 +41,12 @@ type Tests = tuple[Test, ...]
 def _verify_output(actual: str, expected: TestOut) -> bool:
     """Verify the `actual` output with `expected` object.
 
-    Either simply compare two strings, or feed the `actual` to
-    `expected` verification function supplied by the test file.
+    Either simply compare two strings, orfeed the `actual` to
+    a verification function supplied by the test file.
     """
-    if isinstance(expected, str):
-        return actual == expected
-    return expected(actual)
+    if expected.verifn is None:
+        return actual == expected.string
+    return expected.verifn(actual)
 
 
 def _fmt(inp: str) -> str:
@@ -68,9 +79,7 @@ def run_test(test: Test) -> bool:
     print(f'{not_pre}ok {test.no} - {test.cmd}')
     print(f'#   eca:{result.returncode}  inp:"{_fmt(test.input)}"')
     print(f'#   ece:{test.exp_exit_code}  out:"{_fmt(result.stdout)}"')
-
-    if not tpass and isinstance(test.exp_output, str):
-        print(f'#   Expected: {_fmt(test.exp_output)}')
+    print(f'#          exp:"{_fmt(test.exp_output.string)}"')
 
     return tpass
 
