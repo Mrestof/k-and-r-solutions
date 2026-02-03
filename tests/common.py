@@ -66,14 +66,11 @@ def run_test(test: Test) -> bool:
 
     not_pre = 'not ' if not tpass else ''
     print(f'{not_pre}ok {test.no} - {test.cmd}')
-    print(f'#   inp:"{_fmt(test.input)}"')
-    print(f'#   out:"{_fmt(result.stdout)}"')
+    print(f'#   eca:{result.returncode}  inp:"{_fmt(test.input)}"')
+    print(f'#   ece:{test.exp_exit_code}  out:"{_fmt(result.stdout)}"')
 
-    if not tpass:
-        if isinstance(test.exp_output, str):
-            print(f'#   Expected: {_fmt(test.exp_output)}')
-        codes = f'{result.returncode};{test.exp_exit_code}'
-        print(f'#   Exit code: {codes} (actual;expected)')
+    if not tpass and isinstance(test.exp_output, str):
+        print(f'#   Expected: {_fmt(test.exp_output)}')
 
     return tpass
 
