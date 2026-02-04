@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -10,11 +9,11 @@ int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
 void kr_qsort(
-  void *lineptr[], int left, int right, int reverse,
-  int (*comp)(void *, void *)
+  void *lineptr[], int left, int right, int reverse, int icase, int dirord,
+  int (*comp)(void*,void*,int,int)
 );
-int numcmp(const char *, const char *);
-int strcmp_ci(const char *, const char *); /* case insensitive strcmp */
+int numcmp(const char *, const char *, int _ic, int _do);
+int strcmp_kr(const char *, const char *, int icase, int dirord); /* case insensitive strcmp */
 
 /* sort input lines */
 int main(int argc, char *argv[])
@@ -23,6 +22,7 @@ int main(int argc, char *argv[])
   int numeric = 0;   /* 1 if numeric sort */
   int reverse = 1;   /* -1 if reverse sort */
   int ignore_case = 0; /* 1 if ignore case */
+  int directory_order = 0; /* 1 if directory order */
 
   while (--argc > 0 && **++argv == '-')
     while (*++*argv)
@@ -36,20 +36,24 @@ int main(int argc, char *argv[])
       case 'f':
         ignore_case = 1;
         break;
+      case 'd':
+        directory_order = 1;
+        break;
       default:
         return 2;
       }
 
   if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-    int (*funcmp)(void*,void*);
+    int (*funcmp)(void*,void*,int,int);
     if (numeric)
-      funcmp = (int (*)(void*,void*))numcmp;
+      funcmp = (int (*)(void*,void*,int,int))numcmp;
     else
-      if (ignore_case)
-        funcmp = (int (*)(void*,void*))strcmp_ci;
-      else
-        funcmp = (int (*)(void*,void*))strcmp;
-    kr_qsort((void**) lineptr, 0, nlines-1, reverse, funcmp);
+      funcmp = (int (*)(void*,void*,int,int))strcmp_kr;
+    kr_qsort(
+      (void**) lineptr, 0, nlines-1,
+      reverse, ignore_case, directory_order,
+      funcmp
+    );
     writelines(lineptr, nlines);
     return 0;
   } else {
@@ -60,8 +64,8 @@ int main(int argc, char *argv[])
 
 /* kr_qsort: sort v[left]...v[right] into increasing order */
 void kr_qsort(
-  void *v[], int left, int right, int reverse,
-  int (*comp)(void *, void *)
+  void *v[], int left, int right, int reverse, int icase, int dirord,
+  int (*comp)(void*,void*,int,int)
 ) {
   int i, last;
   void arr_swap(void *v[], int, int);
@@ -71,16 +75,17 @@ void kr_qsort(
   arr_swap(v, left, (left + right)/2);
   last = left;
   for (i = left+1; i <= right; i++)
-    if (reverse * (*comp)(v[i], v[left]) < 0)
+    if (reverse * (*comp)(v[i], v[left], icase, dirord) < 0)
       arr_swap(v, ++last, i);
   arr_swap(v, left, last);
-  kr_qsort(v, left, last-1, reverse, comp);
-  kr_qsort(v, last+1, right, reverse, comp);
+  kr_qsort(v, left, last-1, reverse, icase, dirord, comp);
+  kr_qsort(v, last+1, right, reverse, icase, dirord, comp);
 }
 
 /* numcmp: compare s1 and s2 numerically */
-int numcmp(const char *s1, const char *s2)
+int numcmp(const char *s1, const char *s2, int _ic, int _do)
 {
+  (void)_ic, (void)_do;
   double v1, v2;
 
   v1 = atof(s1);
@@ -93,13 +98,30 @@ int numcmp(const char *s1, const char *s2)
     return 0;
 }
 
-int strcmp_ci(const char *s1, const char *s2) {
+int strcmp_kr(const char *s1, const char *s2, int icase, int dirord) {
   char c1, c2;
-  for (int i = 0; s1[i] || s2[i]; i++) {
-    c1 = tolower(s1[i]);
-    c2 = tolower(s2[i]);
+  int i = 0, j = 0;
+  while (s1[i] && s2[j]) {
+    if (dirord) {
+      if (!(isalnum(s1[i]) || isblank(s1[i]))) {
+        i++;
+        continue;
+      }
+      if (!(isalnum(s2[j]) || isblank(s2[j]))) {
+        j++;
+        continue;
+      }
+    }
+    if (icase) {
+      c1 = tolower(s1[i]);
+      c2 = tolower(s2[j]);
+    } else {
+      c1 = s1[i];
+      c2 = s2[j];
+    }
     if (c1 != c2)
       return c1 - c2;
+    i++, j++;
   }
   return 0;
 }
