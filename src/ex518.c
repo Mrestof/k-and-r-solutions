@@ -1,11 +1,11 @@
-// TODO: fix other compiler errors
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 #define MAXTOKEN 100
+#define MAXOUT 1'000
 
-enum { NAME, PARENS, BRACKETS } ;
+enum { NAME, PARENS, BRACKETS };
 
 int dwc(void);
 int wdc(void);
@@ -15,10 +15,10 @@ void dirdcl(void);
 
 int gettoken(void);
 int tokentype;
-char token [ MAXTOKEN] ;
+char token [MAXTOKEN];
 char name[MAXTOKEN];
 char datatype[MAXTOKEN];
-char out[1000];
+char out[MAXOUT];
 
 int getch(void);
 int ungetch(int c);
@@ -120,7 +120,7 @@ int dwc() {
 /* undcl: convert word description to declaration */
 int wdc() {
   int type;
-  char temp[MAXTOKEN];
+  char temp[MAXTOKEN+MAXOUT];
   while (gettoken() != EOF) {
     strcpy(out, token);
     while ((type= gettoken()) != '\n')
