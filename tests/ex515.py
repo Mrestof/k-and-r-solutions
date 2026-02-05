@@ -5,7 +5,7 @@
 from functools import partial
 from itertools import pairwise
 
-from common import Test, Tests, run_tests
+from common import Test, TestOut, Tests, run_tests
 
 EXE = 'ex515'
 
@@ -55,100 +55,115 @@ def _is_sorted(
 
 
 tests: Tests = (
-  Test(1, # Basic case-insensitive sort with -f
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(1, # Basic case-insensitive sort with -f
+    'Apple\napple\nBanana\nbanana\n',
+    TestOut('Apple\napple\nBanana\nbanana\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(2, # Mixed case without -f (case sensitive)
-  'Apple\napple\nBanana\nbanana\n',
-  'Apple\nBanana\napple\nbanana\n',
-  0, f'{EXE}'),
+    Test(2, # Mixed case without -f (case sensitive)
+    'Apple\napple\nBanana\nbanana\n',
+    TestOut('Apple\nBanana\napple\nbanana\n'),
+    0, f'{EXE}'),
 
-  Test(3, # Case-insensitive reverse sort
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, reverse=True, ignore_case=True),
-  0, f'{EXE} -rf'),
+    Test(3, # Case-insensitive reverse sort
+    'Apple\napple\nBanana\nbanana\n',
+    TestOut('Banana\nbanana\nApple\napple\n',
+        partial(_is_sorted, reverse=True, ignore_case=True)),
+    0, f'{EXE} -rf'),
 
-  Test(4, # Case-insensitive numeric sort
-  'Apple\n10\napple\n2\nBanana\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -fn'),
+    Test(4, # Case-insensitive numeric sort
+    'Apple\n10\napple\n2\nBanana\n',
+    TestOut('Apple\napple\nBanana\n2\n10\n',
+        partial(_is_sorted, numeric=True, ignore_case=True)),
+    0, f'{EXE} -fn'),
 
-  Test(5, # All flags together: reverse case-insensitive numeric
-  'Apple\n10\napple\n2\nBanana\n',
-  partial(_is_sorted, numeric=True, reverse=True, ignore_case=True),
-  0, f'{EXE} -rfn'),
+    Test(5, # All flags together: reverse case-insensitive numeric
+    'Apple\n10\napple\n2\nBanana\n',
+    TestOut('10\n2\nApple\napple\nBanana\n',
+        partial(_is_sorted, numeric=True, reverse=True, ignore_case=True)),
+    0, f'{EXE} -rfn'),
 
-  Test(6, # Different flag order (should work the same)
-  'Apple\napple\nBanana\nbanana\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -nf'),
+    Test(6, # Different flag order (should work the same)
+    'Apple\napple\nBanana\nbanana\n',
+    TestOut('Apple\napple\nBanana\nbanana\n',
+        partial(_is_sorted, numeric=True, ignore_case=True)),
+    0, f'{EXE} -nf'),
 
-  Test(7, # Case differences at word boundaries
-  'test\nTEST\nTest\ntEsT\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(7, # Case differences at word boundaries
+    'test\nTEST\nTest\ntEsT\n',
+    TestOut('test\nTEST\nTest\ntEsT\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(8, # Case-insensitive with special characters
-  'Apple!\napple?\nApple.\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(8, # Case-insensitive with special characters
+    'Apple!\napple?\nApple.\n',
+    TestOut('Apple!\nApple.\napple?\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(9, # Case-insensitive with numbers in strings
-  'Test2\ntest1\nTEST10\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(9, # Case-insensitive with numbers in strings
+    'Test2\ntest1\nTEST10\n',
+    TestOut('test1\nTest2\nTEST10\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(10, # Case-insensitive numeric with mixed case numbers
-  'Test\n2a\n10A\n1B\n',
-  partial(_is_sorted, numeric=True, ignore_case=True),
-  0, f'{EXE} -fn'),
+    Test(10, # Case-insensitive numeric with mixed case numbers
+    'Test\n2a\n10A\n1B\n',
+    TestOut('Test\n2a\n10A\n1B\n',
+        partial(_is_sorted, numeric=True, ignore_case=True)),
+    0, f'{EXE} -fn'),
 
-  Test(11, # Empty lines with case-insensitive
-  'Apple\n\napple\nBanana\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(11, # Empty lines with case-insensitive
+    'Apple\n\napple\nBanana\n',
+    TestOut('\nApple\napple\nBanana\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(12, # Single character case differences
-  'a\nA\nb\nB\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(12, # Single character case differences
+    'a\nA\nb\nB\n',
+    TestOut('a\nA\nb\nB\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(13, # Case-insensitive with whitespace
-  'Apple \napple\n Apple\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(13, # Case-insensitive with whitespace
+    'Apple \napple\n Apple\n',
+    TestOut(' Apple\nApple \napple\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(14, # Long strings with case differences
-  'verylongstring\nVERYLONGSTRING\nVeryLongString\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(14, # Long strings with case differences
+    'verylongstring\nVERYLONGSTRING\nVeryLongString\n',
+    TestOut('verylongstring\nVERYLONGSTRING\nVeryLongString\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(15, # Case-insensitive with identical content
-  'same\nsame\nSAME\nSame\n',
-  partial(_is_sorted, ignore_case=True),
-  0, f'{EXE} -f'),
+    Test(15, # Case-insensitive with identical content
+    'same\nsame\nSAME\nSame\n',
+    TestOut('same\nsame\nSAME\nSame\n',
+        partial(_is_sorted, ignore_case=True)),
+    0, f'{EXE} -f'),
 
-  Test(16, # Case-insensitive numeric with floats
-  '-5.2\n8.9\n0.1garbage\napple2\nbanana3\n',
-  partial(_is_sorted, ignore_case=True, numeric=True),
-  0, f'{EXE} -fn'),
+    Test(16, # Case-insensitive numeric with floats
+    '-5.2\n8.9\n0.1garbage\napple2\nbanana3\n',
+    TestOut('-5.2\n0.1garbage\napple2\nbanana3\n8.9\n',
+        partial(_is_sorted, ignore_case=True, numeric=True)),
+    0, f'{EXE} -fn'),
 
-  Test(17, # Invalid flag combination
-  'test\n',
-  '',
-  2, f'{EXE} -fx'),
+    Test(17, # Invalid flag combination
+    'test\n',
+    TestOut('sort: illegal option x\n'),
+    2, f'{EXE} -fx'),
 
-  Test(18, # Case-insensitive single line
-  'OneLine\n',
-  'OneLine\n',
-  0, f'{EXE} -f'),
+    Test(18, # Case-insensitive single line
+    'OneLine\n',
+    TestOut('OneLine\n'),
+    0, f'{EXE} -f'),
 
-  Test(19, # Case-insensitive empty input
-  '',
-  '',
-  0, f'{EXE} -f'),
+    Test(19, # Case-insensitive empty input
+    '',
+    TestOut(''),
+    0, f'{EXE} -f'),
 )
 
 run_tests(tests)
