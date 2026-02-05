@@ -122,6 +122,8 @@ int wdc() {
   int type;
   char temp[MAXTOKEN+MAXOUT];
   while (gettoken() != EOF) {
+    if (tokentype == '\n')
+      continue;
     strcpy(out, token);
     while ((type= gettoken()) != '\n')
       if (type == PARENS || type == BRACKETS)
