@@ -1,4 +1,3 @@
-// TODO: define undefined references
 // TODO: fix other compiler errors
 #include <stdio.h>
 #include <string.h>
@@ -19,7 +18,29 @@ int tokentype;
 char token [ MAXTOKEN] ;
 char name[MAXTOKEN];
 char datatype[MAXTOKEN];
-char out[ 1000];
+char out[1000];
+
+int getch(void);
+int ungetch(int c);
+int prevch = '\0';
+
+int getch(void) {
+  if (prevch != '\0') {
+    int c = prevch;
+    prevch = '\0';
+    return c;
+  }
+  return getchar();
+}
+
+int ungetch(int c) {
+  if (prevch != '\0') {
+    printf("ungetch: too many characters\n");
+    return 1;
+  }
+  prevch = c;
+  return 0;
+}
 
 /* dcl: parse a declarator */
 void dcl(void) {
@@ -55,8 +76,7 @@ void dirdcl(void) {
 
 /* return next token */
 int gettoken(void) {
-  int c, getch(void);
-  void ungetch(int);
+  int c;
   char *p = token;
 
   while ((c = getch()) == ' ' || c == '\t')
