@@ -24,7 +24,7 @@ class TestOut(NamedTuple):
     """
 
     string: str
-    verifn: None | Callable[[str], bool]
+    verifn: None | Callable[[str], bool] = None
 
 class Test(NamedTuple):
     """Represent a single test."""
