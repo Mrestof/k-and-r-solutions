@@ -50,7 +50,7 @@ void dcl(void) {
     ns++;
   dirdcl();
   while (ns-- > 0)
-    strcat(out, "pointer to");
+    strcat(out, " pointer to");
 }
 
 /* dirdcl: parse a direct declarator */
@@ -66,11 +66,11 @@ void dirdcl(void) {
     printf("error: expected name or (dcl)\n");
   while ((type=gettoken()) == PARENS || type== BRACKETS)
     if (type == PARENS)
-      strcat(out, "function returning");
+      strcat(out, " function returning");
     else {
-      strcat(out, "array");
+      strcat(out, " array");
       strcat(out, token);
-      strcat(out, "of");
+      strcat(out, " of");
     }
 }
 
@@ -112,7 +112,7 @@ int dwc() {
     dcl(); /*parse rest of line*/
     if (tokentype != '\n')
       printf("syntax error\n");
-    printf("%s: %s %s\n", name, out, datatype);
+    printf("%s:%s %s\n", name, out, datatype);
   }
   return 0;
 }
@@ -141,7 +141,12 @@ int wdc() {
   return 0;
 }
 
-int main() {
-  // TODO: run either dwc or wdc from here depending on the first arg
-  return 0;
+int main(int argc, char *argv[]) {
+  if (argc != 2)
+    return 1;
+  if (strcmp(argv[1], "dwc") == 0)
+    return dwc();
+  if (strcmp(argv[1], "wdc") == 0)
+    return wdc();
+  return 1;
 }
