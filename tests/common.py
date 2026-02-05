@@ -35,6 +35,7 @@ class Test(NamedTuple):
     exp_output: TestOut
     exp_exit_code: TestExt
     cmd: TestCmd
+    timeout_s: int = 2
 
 type Tests = tuple[Test, ...]
 
@@ -57,31 +58,49 @@ def _fmt(inp: str) -> str:
     )
 
 
+def _print_result(
+    test: Test,
+    result: subprocess.CompletedProcess | None = None,
+    *,
+    tpass: bool,
+) -> None:
+    not_pre = 'not ' if not tpass else ''
+    print(f'{not_pre}ok {test.no} - {test.cmd}')
+
+    res_ret = '?' if result is None else result.returncode
+    res_out = '?' if result is None else result.stdout
+    print(f'#   ece:{test.exp_exit_code}  inp:"{_fmt(test.input)}"')
+    print(f'#   eca:{res_ret}  out:"{_fmt(res_out)}"')
+    print(f'#          exp:"{_fmt(test.exp_output.string)}"')
+
+    sys.stdout.flush()
+
+
 def run_test(test: Test) -> bool:
     """Run `test`, print diagnostics in (kind of) a TAP format."""
-    tpass = False
-
     env = os.environ.copy()
     env['PATH'] = f"{BINDIR}:{env['PATH']}"
-    result = subprocess.run(  # noqa: S603 - safe, we only allow LiteralString
-        shlex.split(test.cmd),
-        env=env,
-        capture_output=True,
-        input=test.input,
-        text=True,
-        check=False,
-    )
+    try:
+        # the noqa below is safe, we only allow LiteralString for test.cmd
+        result = subprocess.run(  # noqa: S603
+            shlex.split(test.cmd),
+            env=env,
+            capture_output=True,
+            timeout=test.timeout_s,
+            input=test.input,
+            text=True,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        # in case the process goes into an infinite loop, might cause an OOM
+        _print_result(test, tpass=False)
+        return False
 
     tpass = result.returncode == test.exp_exit_code
     if test.exp_exit_code == 0:
         tpass = tpass and _verify_output(result.stdout, test.exp_output)
 
-    not_pre = 'not ' if not tpass else ''
-    print(f'{not_pre}ok {test.no} - {test.cmd}')
-    print(f'#   eca:{result.returncode}  inp:"{_fmt(test.input)}"')
-    print(f'#   ece:{test.exp_exit_code}  out:"{_fmt(result.stdout)}"')
-    print(f'#          exp:"{_fmt(test.exp_output.string)}"')
-    sys.stdout.flush()
+    _print_result(test, result, tpass=tpass)
 
     return tpass
 
