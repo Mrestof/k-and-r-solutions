@@ -6,8 +6,9 @@ int prevch = '\0';
 
 int getch(void) {
   if (prevch != '\0') {
+    int c = prevch;
     prevch = '\0';
-    return prevch;
+    return c;
   }
   return getchar();
 }
