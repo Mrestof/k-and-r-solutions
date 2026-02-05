@@ -4,6 +4,7 @@
 import os
 import shlex
 import subprocess
+import sys
 from collections.abc import Callable
 from typing import LiteralString, NamedTuple
 
@@ -80,6 +81,7 @@ def run_test(test: Test) -> bool:
     print(f'#   eca:{result.returncode}  inp:"{_fmt(test.input)}"')
     print(f'#   ece:{test.exp_exit_code}  out:"{_fmt(result.stdout)}"')
     print(f'#          exp:"{_fmt(test.exp_output.string)}"')
+    sys.stdout.flush()
 
     return tpass
 
