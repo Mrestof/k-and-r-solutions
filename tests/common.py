@@ -6,9 +6,12 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Callable
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import LiteralString, NamedTuple
 
 BINDIR='.bin'
+TMPDIR_PREF='ptl'
 
 type TestNum = int
 type TestInp = str
@@ -27,14 +30,33 @@ class TestOut(NamedTuple):
     string: str
     verifn: None | Callable[[str], bool] = None
 
+class TestFile(NamedTuple):
+    """Files needed for test to run on.
+
+    Just a plain representation of a file to be created in
+    a temporary storage to be used for a test. The `name` is the simple name of
+    the file (ex. "file.txt"). The `content` is the text that will be placed in
+    the file.
+    """
+
+    name: str
+    content: str
+
 class Test(NamedTuple):
-    """Represent a single test."""
+    """Represent a single test.
+
+    Details on attributes (not full for now):
+    cmd: A shell command to run the test. The "{tmp}" is the directory in which
+        the test files defined for the test can be found. Example: "bin_name -f
+        {tmp}/file.txt".
+    """
 
     no: TestNum
     input: TestInp
     exp_output: TestOut
     exp_exit_code: TestExt
     cmd: TestCmd
+    files: tuple[TestFile, ...] = ()
     timeout_s: int = 2
 
 type Tests = tuple[Test, ...]
@@ -76,14 +98,29 @@ def _print_result(
     sys.stdout.flush()
 
 
+def _create_test_files(test: Test) -> TemporaryDirectory:
+    """Create files required for the test.
+
+    Return the directory they have been placed into.
+    """
+    tmpdir = TemporaryDirectory(prefix=TMPDIR_PREF)
+    for file in test.files:
+        path = Path(tmpdir.name) / Path(file.name)
+        path.write_text(file.content)
+    return tmpdir
+
+
 def run_test(test: Test) -> bool:
     """Run `test`, print diagnostics in (kind of) a TAP format."""
+    tmpdir = _create_test_files(test)
+    full_cmd = test.cmd.format(tmp=tmpdir.name)
+
     env = os.environ.copy()
     env['PATH'] = f"{BINDIR}:{env['PATH']}"
     try:
         # the noqa below is safe, we only allow LiteralString for test.cmd
         result = subprocess.run(  # noqa: S603
-            shlex.split(test.cmd),
+            shlex.split(full_cmd),
             env=env,
             capture_output=True,
             timeout=test.timeout_s,
