@@ -94,6 +94,8 @@ def _print_result(
     print(f'#   ece:{test.exp_exit_code}  inp:"{_fmt(test.input)}"')
     print(f'#   eca:{res_ret}  out:"{_fmt(res_out)}"')
     print(f'#          exp:"{_fmt(test.exp_output.string)}"')
+    for file in test.files:
+        print(f'#   file "{file.name}": "{_fmt(file.content)}"')
 
     sys.stdout.flush()
 
