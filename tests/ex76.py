@@ -9,7 +9,7 @@ EXE = 'ex76'
 tests: Tests = (
     Test(1, # First differing line in middle
     '',
-    TestOut(''),
+    TestOut('< line5\n> line2\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'line1\nline5\nline3\n'),
     TestFile('b', 'line1\nline2\nline3\n'),
@@ -17,7 +17,7 @@ tests: Tests = (
 
     Test(2, # First line differs
     '',
-    TestOut(''),
+    TestOut('< first-left\n> first-right\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'first-left\nline2\nline3\n'),
     TestFile('b', 'first-right\nline2\nline3\n'),
@@ -25,7 +25,7 @@ tests: Tests = (
 
     Test(3, # Last line differs
     '',
-    TestOut(''),
+    TestOut('< last-left\n> last-right\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'line1\nline2\nlast-left\n'),
     TestFile('b', 'line1\nline2\nlast-right\n'),
@@ -33,7 +33,7 @@ tests: Tests = (
 
     Test(4, # Whitespace-only difference
     '',
-    TestOut(''),
+    TestOut('< line two\n> line  two\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'line1\nline two\nline3\n'),
     TestFile('b', 'line1\nline  two\nline3\n'),
@@ -41,7 +41,7 @@ tests: Tests = (
 
     Test(5, # Right file has extra trailing line
     '',
-    TestOut(''),
+    TestOut('> line3\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'line1\nline2\n'),
     TestFile('b', 'line1\nline2\nline3\n'),
@@ -49,7 +49,7 @@ tests: Tests = (
 
     Test(6, # Left file has extra trailing line
     '',
-    TestOut(''),
+    TestOut('< line3\n'),
     1, f'{EXE} {{tmp}}/a {{tmp}}/b', (
     TestFile('a', 'line1\nline2\nline3\n'),
     TestFile('b', 'line1\nline2\n'),
