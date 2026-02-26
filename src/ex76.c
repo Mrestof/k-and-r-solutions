@@ -3,10 +3,9 @@
 #define MAXLINE 1'000
 
 bool diff(char *l1, char* l2) {
-  while (*l1++ == *l2++)
-    if (!*l1 || !*l2)
-      return false;
-  return true;
+  while (*l1 && *l1 == *l2)
+    l1++, l2++;
+  return *l1 != *l2;
 }
 
 int main(int argc, char* argv[]) {
