@@ -10,8 +10,8 @@ int main(int argc, char* argv[]) {
   int fd;
 
   if (argc == 1) {
-    while ((n = read(0, buf, BUFSIZ)) > 0)
-      if (write(1, buf, n) != n)
+    while ((n = read(STDIN_FILENO, buf, BUFSIZ)) > 0)
+      if (write(STDOUT_FILENO, buf, n) != n)
         err(EXIT_FAILURE, "can't write");
     return 0;
   }
