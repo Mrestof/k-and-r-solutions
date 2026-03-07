@@ -91,6 +91,8 @@ def _print_result(
 
     res_ret = '?' if result is None else result.returncode
     res_out = '?' if result is None else result.stdout
+    if result is not None and result.stderr:
+        print(f'#   ERR:"{_fmt(result.stderr)}"')
     print(f'#   ece:{test.exp_exit_code}  inp:"{_fmt(test.input)}"')
     print(f'#   eca:{res_ret}  out:"{_fmt(res_out)}"')
     print(f'#          exp:"{_fmt(test.exp_output.string)}"')
