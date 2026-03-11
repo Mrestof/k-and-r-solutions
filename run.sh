@@ -91,13 +91,13 @@ run_executable() {
 
 _color_tap() {
   local GREEN='\033[0;32m'
-  local YELLOW='\033[1;33m'
+  local RED='\033[1;31m'
   local RESET='\033[0m'
   local color=""
 
   while IFS= read -r line; do
       [[ "$line" =~ ^ok ]] && color="$GREEN"
-      [[ "$line" =~ ^not\ ok ]] && color="$YELLOW"
+      [[ "$line" =~ ^not\ ok ]] && color="$RED"
       echo -e "${color}${line}${RESET}"
   done
 }
